@@ -14,7 +14,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI12 -count=1 .
 tripwire_mutation: 'parser.go:1709 — the empty-input guard return was mutated from `MalformedObjectError` to `MalformedJsonError`, so ArrayEach on empty input surfaces an error type that disagrees with the documented contract and with arrayEachErr. Reverting `MalformedJsonError` back to `MalformedObjectError` flips the TestDemoKI12 reproducer from the wrong type back to the documented MalformedObjectError.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore MalformedObjectError as the empty-input return of arrayEachConfig so the error type matches the documented contract and the sibling arrayEachErr path.
 remediation: 'One-token revert in parser.go:1709 (`MalformedJsonError` → `MalformedObjectError`).'

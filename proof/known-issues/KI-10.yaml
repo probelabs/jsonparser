@@ -14,7 +14,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI10 -count=1 .
 tripwire_mutation: 'parser.go:1763 — the empty-array sentinel was mutated from `if data[offset] == '']''` to `if data[offset] == ''}''`. An empty array no longer matches the sentinel, so the loop runs against the closing bracket and returns MalformedArrayError. Reverting ''}'' back to '']'' flips the TestDemoKI10 reproducer from MalformedArrayError back to a clean zero-iteration success.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore the `']'` closing-bracket comparison in the empty-array fast path so `[]` is recognized as empty and iterates zero times with a nil error.
 remediation: 'One-token revert in parser.go:1763 (`data[offset] == ''}''` → `data[offset] == '']''`).'

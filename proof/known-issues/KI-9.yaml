@@ -15,7 +15,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI9 -count=1 .
 tripwire_mutation: 'escape.go:71 — the uppercase-hex range check was mutated from `if c >= 65 && c <= 70` to `c <= 71`, so byte 71 (ASCII ''G'') maps to value 16 instead of returning badHex. Reverting `c <= 71` back to `c <= 70` flips the TestDemoKI9 reproducer from silent acceptance back to MalformedStringEscapeError.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore the 'A'..'F' (65..70) upper bound in h2I so any byte above 'F' returns badHex and the enclosing escape is rejected as malformed.
 remediation: 'One-token revert in escape.go:71 (`c <= 71` → `c <= 70`); Unescape then returns MalformedStringEscapeError for `\uG000` instead of decoding a bogus code point.'

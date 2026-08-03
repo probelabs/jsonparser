@@ -16,7 +16,7 @@ sanitizer: go-runtime-panic:index-out-of-range
 reproducer_command: go test -run TestDemoKI5 -count=1 .
 tripwire_mutation: 'escape.go:88 — the length guard was mutated from `if len(in) < 6` to `if len(in) < 4`. With only 4 bytes available, decodeSingleUnicodeEscape reads in[4] and in[5] out of bounds. Reverting `< 4` back to `< 6` flips the TestDemoKI5 reproducer from PANIC back to a clean MalformedStringEscapeError.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore the 6-byte minimum-length guard in decodeSingleUnicodeEscape so a truncated `\uXX` escape returns (RuneError, false) instead of indexing past the buffer end.
 remediation: 'One-token revert in escape.go:88 (`if len(in) < 4` → `if len(in) < 6`); the reproducer TestDemoKI5 then returns MalformedStringEscapeError instead of panicking.'

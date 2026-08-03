@@ -15,7 +15,7 @@ sanitizer: go-runtime-panic:index-out-of-range
 reproducer_command: go test -run TestDemoKI6 -count=1 .
 tripwire_mutation: 'escape.go:194 — the minimum-length guard was mutated from `if len(in) < 2` to `if len(in) < 1`. A single-byte input `\` then passes the guard and the switch reads in[1] out of bounds. Reverting `< 1` back to `< 2` flips the TestDemoKI6 reproducer from PANIC back to a clean MalformedStringEscapeError.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore the 2-byte minimum-length guard in unescapeToUTF8Config so a lone trailing backslash returns (-1, -1) and the caller surfaces MalformedStringEscapeError.
 remediation: 'One-token revert in escape.go:194 (`if len(in) < 1` → `if len(in) < 2`).'

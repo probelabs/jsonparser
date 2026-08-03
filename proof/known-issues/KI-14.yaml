@@ -15,7 +15,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI14 -count=1 .
 tripwire_mutation: 'escape.go:203 — the basic-escape switch case lost its `''/'',` entry (mutated from `case ''"'', ''\\'', ''/'', ''b'', ...` to drop the slash). `\/` now falls through to the error return. Re-adding `''/'',` to the case list flips the TestDemoKI14 reproducer from MalformedStringEscapeError back to decoding `/`.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore `'/'` to the basic 2-character escape case in unescapeToUTF8Config; RFC 8259 explicitly permits `\/`, and backslashCharEscapeTable already maps it.
 remediation: 'Re-add `''/'',` to the escape case at escape.go:203.'

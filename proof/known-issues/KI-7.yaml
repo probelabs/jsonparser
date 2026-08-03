@@ -17,7 +17,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI7 -count=1 .
 tripwire_mutation: 'bytes.go:27 — the fast-path digit-count threshold was mutated from `if l-i < 19` to `if l-i < 20`. A 19-digit value now takes the unchecked fast path and wraps via int64 arithmetic instead of routing through the overflow-checked slow path. Reverting `< 20` back to `< 19` flips the TestDemoKI7 reproducer from a wrong wrapped value back to OverflowIntegerError.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore the 19-digit fast-path threshold so any integer of 19-or-more digits is checked for int64 overflow before the value is returned.
 remediation: 'One-token revert in bytes.go:27 (`if l-i < 20` → `if l-i < 19`); ParseInt then returns OverflowIntegerError for out-of-range 19-digit input instead of a silently wrapped int64.'

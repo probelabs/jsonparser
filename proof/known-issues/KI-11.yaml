@@ -16,7 +16,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI11 -count=1 .
 tripwire_mutation: 'parser.go:2137-2139 — both cases were mutated from `bytes.Equal(b, trueLiteral)` / `bytes.Equal(b, falseLiteral)` to `bytes.HasPrefix(...)`. Any value beginning with "true"/"false" now parses successfully. Reverting `bytes.HasPrefix` back to `bytes.Equal` on both lines flips the TestDemoKI11 reproducer from silent acceptance back to MalformedValueError.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore exact bytes.Equal comparison in ParseBoolean so only the literal "true"/"false" tokens parse and anything with trailing garbage returns MalformedValueError.
 remediation: 'Revert parser.go:2137 and 2139 (`bytes.HasPrefix` → `bytes.Equal`).'

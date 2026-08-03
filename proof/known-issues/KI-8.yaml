@@ -15,7 +15,7 @@ sanitizer: go-runtime-panic:index-out-of-range
 reproducer_command: go test -run TestDemoKI8 -count=1 .
 tripwire_mutation: 'escape.go:146 — the lone-high-surrogate guard `} else if len(in) < 8 || in[6] != ... ` was mutated to `len(in) < 6`. With only 6 bytes available the guard short-circuit no longer protects in[6]/in[7], which are then read out of bounds. Reverting `len(in) < 6` back to `len(in) < 8` flips the TestDemoKI8 reproducer from PANIC back to a clean U+FFFD substitution.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: Restore the 8-byte minimum-length check in the lone-high-surrogate branch so a high surrogate at end-of-buffer substitutes U+FFFD instead of indexing past the buffer end.
 remediation: 'One-token revert in escape.go:146 (`len(in) < 6` → `len(in) < 8`).'

@@ -14,7 +14,7 @@ sanitizer: audit:hazard-sweep
 reproducer_command: go test -run TestDemoKI15 -count=1 .
 tripwire_mutation: 'escape.go:138 — the `} else if r >= lowSurrogateOffset {` branch is the guard that catches a lone low surrogate and returns (utf8.RuneError, 6). Deleting or narrowing this branch (so a lone low surrogate falls through toward the surrogate-pair path) would reintroduce a bogus decoded code point and flip the GREEN TestDemoKI15 reproducer to FAIL.'
 introduced_in: demo-showcase
-disclosure: private
+disclosure: public
 minimization_status: minimized
 mitigation: 'The lone-low-surrogate branch (escape.go:138) already substitutes U+FFFD and consumes exactly the 6 bytes of the escape, matching encoding/json and RFC 8259 handling of unpaired surrogates.'
 remediation: 'No action required — the guard is present and correct; this KI documents the resolved behavior and its tripwire.'
