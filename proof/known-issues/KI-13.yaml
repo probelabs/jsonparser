@@ -1,30 +1,57 @@
 id: KI-13
 title: nextTokenConfig drops the tab from its whitespace set — parsing fails on tab-formatted JSON
 affected_requirements:
-    - SYS-REQ-001
-    - SYS-REQ-026
-commands:
-    - go test ./... -count=1
+- SYS-REQ-001
+- SYS-REQ-026
+affected_api: nextTokenConfig
 severity: low
 severity_basis: risk
 risk: correctness
 cve_surface: none
-affected_api: Get, GetString, GetInt, ArrayEach, ObjectEach
-attacker_input: JSON with a tab before a value, e.g. {"a":\t123}
-sanitizer: audit:hazard-sweep
+cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N
+attacker_input: JSON that uses a tab as insignificant whitespace before a value, e.g. {"a":\t123}
+environment_note: Reachable via any Get*/ArrayEach/ObjectEach call on tab-formatted JSON; only inputs
+  that place a tab where whitespace is expected are affected (space/newline/CR still parse).
+description: nextTokenConfig (parser.go) advances past insignificant whitespace before reading a token.
+  On the proof-demo showcase branch the whitespace test lost its `|| c == '\t'` term (parser.go:247),
+  so a tab is no longer treated as insignificant whitespace and token scanning stops on it, failing to
+  locate the following value. RFC 8259 lists the tab among the four insignificant whitespace bytes, so
+  this is a CWE-20 Improper Input Validation — spec-valid input is rejected. Intentional demo defect on
+  the proof-demo showcase branch; never shipped.
+customer_impact: Tab-indented or tab-separated JSON (common from pretty-printers and hand-edited config)
+  fails to parse, so values after a tab are not found. Intentional demo defect on the proof-demo showcase
+  branch; never shipped.
+mitigation: Normalize/minify JSON (strip tabs) before parsing, or ensure producers emit spaces rather
+  than tabs, until the whitespace set is restored.
+remediation: Re-add the tab term to the whitespace test in nextTokenConfig (parser.go:247, restore `||
+  c == '\t'`) so tab-formatted JSON parses per RFC 8259 section 2. Closes CWE-20 Improper Input Validation.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetInt on {"a":\t123} (tab before the value) — or run: go test -run TestDemoKI13 -count=1
+  .'
+- Observe a parse failure/not-found instead of reading the value 123.
+evidence_manifests:
+- proof/evidence/KI-13-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI13 -count=1 .
-tripwire_mutation: 'parser.go:247 — the whitespace test lost its `|| c == ''\t''` term (mutated from `c == '' '' || c == ''\n'' || c == ''\r'' || c == ''\t''` to drop the tab). A leading tab is no longer skipped, so token scanning stops on it. Restoring the `|| c == ''\t''` term flips the TestDemoKI13 reproducer from a parse failure back to reading the value 123.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: parser.go:247 — the whitespace test lost its `|| c == '\t'` term (mutated from `c ==
+  ' ' || c == '\n' || c == '\r' || c == '\t'` to drop the tab). A leading tab is no longer skipped, so
+  token scanning stops on it. Restoring the `|| c == '\t'` term flips the TestDemoKI13 reproducer from
+  a parse failure back to reading the value 123.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: Restore the tab (`'\t'`) as insignificant whitespace in nextTokenConfig so tab-formatted JSON parses per RFC 8259 (which lists tab among the four insignificant whitespace bytes).
-remediation: 'Re-add `|| c == ''\t''` to the whitespace test at parser.go:247.'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

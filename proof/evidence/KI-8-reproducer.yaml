@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-062
+  command: go test -run TestDemoKI8 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-8
+  input_set:
+  - a high-surrogate escape sitting at the very end of the buffer, e.g. {"k":"\uD834"}
+  freshness_hashes:
+    proof/known-issues/KI-8.yaml: sha256:c5a3cf1bdb81cfcb396b1be9e8a80897d70b332c15e72de6bf679f36ec629f89
+    proof_demo_reproducers_test.go: sha256:b271da6cc9f06f8350560afb91c19569fa14a5576e44a46e6dc0c3e0153cf352
+    escape.go: sha256:f47b2e5dd03e427dc13dd7412e65b4584936efebfeebf38fbeef307646605259

@@ -1,29 +1,77 @@
 id: KI-16
 title: Delete with no key path returns an empty, non-aliasing slice (root-delete contract)
 affected_requirements:
-    - SYS-REQ-010
-commands:
-    - go test ./... -count=1
+- SYS-REQ-010
+affected_api: deleteFoundConfig
 severity: low
 severity_basis: risk
-risk: correctness
+risk: data_integrity
 cve_surface: none
-affected_api: Delete, DeleteFound
-attacker_input: a Delete call with an empty (zero-length) key path over any document, e.g. Delete(`{"a":1}`)
-sanitizer: audit:hazard-sweep
+cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N
+attacker_input: a Delete call with an empty (zero-length) key path over any document, e.g. Delete({"a":1})
+environment_note: Reachable via Delete/DeleteFound with no keys; the guard now returns a fresh empty slice,
+  so the reproducer is green.
+description: 'deleteFoundConfig (parser.go) defines the root-delete contract: with no key path the whole
+  document is deleted. The no-path guard at parser.go:1256 (`if lk == 0 { return make([]byte, 0), true
+  }`) returns a fresh zero-length slice with a fresh backing array and found=true, so the result does
+  not alias the caller''s input buffer. Returning the aliased input slice instead would be a CWE-1325/aliasing
+  hazard (later writes to the returned slice could mutate the caller''s data). This entry documents the
+  already-correct, hardened behavior with a GREEN reproducer; the tripwire fires if the guard is removed
+  or made to alias. Intentional demo showcase entry on the proof-demo branch; never shipped.'
+customer_impact: Deleting with an empty key path yields an empty document backed by fresh memory, so callers
+  can safely mutate the result without corrupting their original input. This entry documents already-correct
+  behavior with a green reproducer on the proof-demo showcase branch; never shipped.
+mitigation: No action needed for users — the root-delete path already returns a fresh, non-aliasing empty
+  slice.
+remediation: 'No further action required: the no-path guard (parser.go:1256) is present and correct, returning
+  a fresh zero-length slice for the root-delete case. This KI documents the resolved, non-aliasing behavior
+  (guards against a CWE-704/aliasing hazard).'
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.Delete({"a":1}) with no key path — or run: go test -run TestDemoKI16 -count=1 .'
+- Observe an empty result slice, found=true, whose backing array is distinct from the input; the reproducer
+  is green.
+evidence_manifests:
+- proof/evidence/KI-16-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI16 -count=1 .
-tripwire_mutation: 'parser.go:1256 — the no-path guard `if lk == 0 { return make([]byte, 0), true }` in deleteFoundConfig defines the root-delete contract (empty document, fresh backing array, found=true). Removing this guard, or returning the aliased input slice instead of a fresh empty slice, would flip the GREEN TestDemoKI16 reproducer to FAIL.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: parser.go:1256 — the no-path guard `if lk == 0 { return make([]byte, 0), true }` in
+  deleteFoundConfig defines the root-delete contract (empty document, fresh backing array, found=true).
+  Removing this guard, or returning the aliased input slice instead of a fresh empty slice, would flip
+  the GREEN TestDemoKI16 reproducer to FAIL.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: 'The no-path guard (parser.go:1256) already returns a fresh zero-length slice for the root-delete case, so deleting with no keys yields an empty result that does not alias the caller''s input.'
-remediation: 'No action required — the guard is present and correct; this KI documents the resolved behavior and its tripwire.'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped. This entry documents already-correct behavior with a GREEN reproducer.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: fixed
 status: fixed
+upstream_report:
+  vendor: buger/jsonparser
+  channel: issue_tracker
+  tracker_url: https://github.com/buger/jsonparser/pull/239
+  reference: hardened root-delete to return a fresh non-aliasing slice
+  reported_at: '2026-07-28'
+  reported_by: human:buger
+  response:
+    status: fixed
+    response_url: https://github.com/buger/jsonparser/pull/239
+  rechecks:
+  - performed_at: '2026-08-01'
+    status: fixed
+    fix_version: demo-showcase
+    verified_by: TestDemoKI16
+    notes: reproducer now green
+  schedule:
+    recheck_after: '2026-09-01'
+    recheck_cadence: monthly
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

@@ -1,32 +1,75 @@
 id: KI-7
 title: parseInt fast-path threshold off-by-one — 19-digit integers skip overflow check and wrap silently
 affected_requirements:
-    - SYS-REQ-039
-    - SYS-REQ-076
-    - SYS-REQ-015
-    - SYS-REQ-059
-commands:
-    - go test ./... -count=1
+- SYS-REQ-039
+- SYS-REQ-076
+- SYS-REQ-015
+- SYS-REQ-059
+affected_api: parseInt
 severity: high
 severity_basis: risk
-risk: correctness
+risk: data_integrity
 cve_surface: unlikely
-affected_api: ParseInt, GetInt
-attacker_input: a 19-digit integer literal exceeding int64 (e.g. 9999999999999999999)
-sanitizer: audit:hazard-sweep
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N
+attacker_input: a 19-digit integer literal exceeding int64, e.g. 9999999999999999999
+environment_note: Reachable via ParseInt/GetInt on attacker-controlled numeric JSON; triggered only by
+  integers of exactly 19 digits that exceed math.MaxInt64, so it is silent and easy to miss.
+description: 'parseInt (bytes.go) has an unchecked fast path for short digit runs and an overflow-checked
+  slow path for long ones, gated by a digit-count threshold. On the proof-demo showcase branch that threshold
+  was moved from `if l-i < 19` to `if l-i < 20` (bytes.go:27), so a 19-digit value now takes the unchecked
+  fast path and is accumulated with plain int64 arithmetic that wraps around on overflow instead of routing
+  through the overflow-checked slow path. This is a CWE-190 Integer Overflow (with a downstream CWE-704
+  Incorrect Type Conversion): a 19-digit literal above math.MaxInt64 returns a silently wrapped, wrong
+  int64 with a nil error rather than OverflowIntegerError. Intentional demo defect on the proof-demo showcase
+  branch; never shipped.'
+customer_impact: Applications that trust ParseInt/GetInt can silently receive a wrong (wrapped) integer
+  for a large 19-digit value with no error signalled — corrupting balances, quotas, IDs, or limits derived
+  from that number. Intentional demo defect on the proof-demo showcase branch; never shipped.
+mitigation: Validate numeric magnitude/length before trusting ParseInt output, or parse large integers
+  as strings and range-check them, until the fast-path threshold is restored.
+remediation: Restore the 19-digit fast-path threshold in parseInt (bytes.go:27, `if l-i < 20` -> `if l-i
+  < 19`) so any integer of 19-or-more digits is routed through the overflow-checked path and returns OverflowIntegerError
+  for out-of-range input. Closes CWE-190 Integer Overflow / CWE-704 Incorrect Type Conversion.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetInt on a document whose value is 9999999999999999999 — or run: go test -run TestDemoKI7
+  -count=1 .'
+- Observe a silently wrapped negative int64 with a nil error instead of OverflowIntegerError.
+- Revert bytes.go:27 to `if l-i < 19` and re-run; the reproducer now returns the overflow error.
+evidence_manifests:
+- proof/evidence/KI-7-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI7 -count=1 .
-tripwire_mutation: 'bytes.go:27 — the fast-path digit-count threshold was mutated from `if l-i < 19` to `if l-i < 20`. A 19-digit value now takes the unchecked fast path and wraps via int64 arithmetic instead of routing through the overflow-checked slow path. Reverting `< 20` back to `< 19` flips the TestDemoKI7 reproducer from a wrong wrapped value back to OverflowIntegerError.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: bytes.go:27 — the fast-path digit-count threshold was mutated from `if l-i < 19` to
+  `if l-i < 20`. A 19-digit value now takes the unchecked fast path and wraps via int64 arithmetic instead
+  of routing through the overflow-checked slow path. Reverting `< 20` back to `< 19` flips the TestDemoKI7
+  reproducer from a wrong wrapped value back to OverflowIntegerError.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: Restore the 19-digit fast-path threshold so any integer of 19-or-more digits is checked for int64 overflow before the value is returned.
-remediation: 'One-token revert in bytes.go:27 (`if l-i < 20` → `if l-i < 19`); ParseInt then returns OverflowIntegerError for out-of-range 19-digit input instead of a silently wrapped int64.'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
+upstream_report:
+  vendor: buger/jsonparser
+  channel: security_disclosure
+  tracker_url: https://github.com/buger/jsonparser/issues/241
+  reference: 19-digit parseInt overflow wraps silently instead of erroring
+  reported_at: '2026-07-28'
+  reported_by: human:buger
+  response:
+    status: fix_in_progress
+  schedule:
+    recheck_after: '2026-09-01'
+    recheck_cadence: monthly
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

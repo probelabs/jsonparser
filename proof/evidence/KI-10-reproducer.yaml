@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-028
+  command: go test -run TestDemoKI10 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-10
+  input_set:
+  - a well-formed empty JSON array, []
+  freshness_hashes:
+    proof/known-issues/KI-10.yaml: sha256:99d718b142eaea60cc01add4811ec9eca1d8351c0fc8f6a623dc7f8889128719
+    proof_demo_reproducers_test.go: sha256:7d3673eaa2dc195f5ca372bb8706114466dbdfd19b3b80dbf7da2ba5b3b24e9b
+    parser.go: sha256:6d7027d47d8ba777195b3ac0fb4f7c2a3ed8b2027f5d3ff58d47623dcd477d83

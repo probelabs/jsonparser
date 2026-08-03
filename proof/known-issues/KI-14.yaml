@@ -1,30 +1,57 @@
 id: KI-14
-title: unescapeToUTF8Config drops '/' from the accepted escapes — the valid JSON escape `\/` is rejected as malformed
+title: unescapeToUTF8Config drops '/' from the accepted escapes — the valid JSON escape `\/` is rejected
+  as malformed
 affected_requirements:
-    - SYS-REQ-014
-    - SYS-REQ-038
-commands:
-    - go test ./... -count=1
+- SYS-REQ-014
+- SYS-REQ-038
+affected_api: unescapeToUTF8Config
 severity: low
 severity_basis: risk
 risk: correctness
 cve_surface: none
-affected_api: Unescape, ParseString, GetString, Get
-attacker_input: any JSON string containing an escaped forward slash `\/`
-sanitizer: audit:hazard-sweep
+cvss: CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N
+attacker_input: any JSON string containing an escaped forward slash, e.g. {"k":"a\/b"}
+environment_note: Reachable via any Unescape/ParseString/Get* call on a string value containing `\/`;
+  other escapes still decode, only the forward-slash escape is affected.
+description: 'unescapeToUTF8Config (escape.go) decodes the basic two-character escapes via a switch. On
+  the proof-demo showcase branch the switch case lost its `/` entry (escape.go:203), so `\/` falls through
+  to the error return even though RFC 8259 explicitly permits the escaped solidus and backslashCharEscapeTable
+  already maps it. The result is a CWE-20 Improper Input Validation: a spec-valid escape is rejected as
+  MalformedStringEscapeError. Intentional demo defect on the proof-demo showcase branch; never shipped.'
+customer_impact: Strings containing the valid `\/` escape (common when JSON is embedded in HTML/JS or
+  produced by escaping-heavy encoders) fail to decode, breaking otherwise-valid documents. Intentional
+  demo defect on the proof-demo showcase branch; never shipped.
+mitigation: Pre-process untrusted JSON to replace `\/` with `/` (both are valid), or ensure producers
+  do not escape forward slashes, until the escape case is restored.
+remediation: Re-add `'/'` to the basic-escape case in unescapeToUTF8Config (escape.go:203) so `\/` decodes
+  to `/`. RFC 8259 section 7 permits the escaped solidus; closes CWE-20 Improper Input Validation.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetString on a value containing `a\/b` — or run: go test -run TestDemoKI14 -count=1
+  .'
+- Observe MalformedStringEscapeError instead of the decoded value `a/b`.
+evidence_manifests:
+- proof/evidence/KI-14-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI14 -count=1 .
-tripwire_mutation: 'escape.go:203 — the basic-escape switch case lost its `''/'',` entry (mutated from `case ''"'', ''\\'', ''/'', ''b'', ...` to drop the slash). `\/` now falls through to the error return. Re-adding `''/'',` to the case list flips the TestDemoKI14 reproducer from MalformedStringEscapeError back to decoding `/`.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: escape.go:203 — the basic-escape switch case lost its `'/',` entry (mutated from `case
+  '"', '\\', '/', 'b', ...` to drop the slash). `\/` now falls through to the error return. Re-adding
+  `'/',` to the case list flips the TestDemoKI14 reproducer from MalformedStringEscapeError back to decoding
+  `/`.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: Restore `'/'` to the basic 2-character escape case in unescapeToUTF8Config; RFC 8259 explicitly permits `\/`, and backslashCharEscapeTable already maps it.
-remediation: 'Re-add `''/'',` to the escape case at escape.go:203.'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

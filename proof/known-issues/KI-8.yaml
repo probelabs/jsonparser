@@ -1,30 +1,61 @@
 id: KI-8
-title: decodeUnicodeEscape lone-high-surrogate guard reads in[6]/in[7] with a too-small length check — OOB panic
+title: decodeUnicodeEscape lone-high-surrogate guard reads in[6]/in[7] with a too-small length check —
+  OOB panic
 affected_requirements:
-    - SYS-REQ-062
-    - SYS-REQ-061
-commands:
-    - go test ./... -count=1
+- SYS-REQ-062
+- SYS-REQ-061
+affected_api: decodeUnicodeEscape
 severity: high
 severity_basis: reproducer
 risk: availability
 cve_surface: likely
-affected_api: Unescape, ParseString
-attacker_input: a high-surrogate escape (e.g. `\uD834`) sitting at the very end of the buffer
-sanitizer: go-runtime-panic:index-out-of-range
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+attacker_input: a high-surrogate escape sitting at the very end of the buffer, e.g. {"k":"\uD834"}
+environment_note: Reachable via any Unescape/ParseString/Get* call on attacker-controlled JSON whose final
+  escape is a lone high surrogate with no room for a trailing low-surrogate escape.
+description: decodeUnicodeEscape (escape.go) handles a high surrogate by peeking at the next escape at
+  in[6]/in[7] to test for a `\u` low-surrogate continuation, guarded by a length check. On the proof-demo
+  showcase branch the lone-high-surrogate guard was weakened from `len(in) < 8` to `len(in) < 6` (escape.go:146),
+  so when only six bytes remain the short-circuit no longer protects in[6]/in[7], which are then read
+  past the end of the slice — a CWE-125 Out-of-bounds Read. The Go runtime turns the read into an index-out-of-range
+  panic instead of substituting U+FFFD for the unpaired surrogate. Intentional demo defect on the proof-demo
+  showcase branch; never shipped.
+customer_impact: A lone high-surrogate escape at the end of attacker-controlled JSON crashes the consuming
+  service (denial of service) rather than decoding to the U+FFFD replacement character. Intentional demo
+  defect on the proof-demo showcase branch; never shipped.
+mitigation: Bound untrusted input and recover around parse calls until the guard is restored; validating
+  that surrogate escapes are well-paired before parsing avoids the boundary read.
+remediation: Restore the 8-byte minimum-length check in the lone-high-surrogate branch of decodeUnicodeEscape
+  (escape.go:146, `len(in) < 6` -> `len(in) < 8`) so a high surrogate at end-of-buffer substitutes U+FFFD
+  instead of indexing past the buffer. Closes CWE-125 Out-of-bounds Read; cf. RFC 8259 section 7 on unpaired
+  surrogates.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetString on a value ending in `\uD834` — or run: go test -run TestDemoKI8 -count=1
+  .'
+- Observe an index-out-of-range panic from decodeUnicodeEscape rather than a clean U+FFFD substitution.
+evidence_manifests:
+- proof/evidence/KI-8-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI8 -count=1 .
-tripwire_mutation: 'escape.go:146 — the lone-high-surrogate guard `} else if len(in) < 8 || in[6] != ... ` was mutated to `len(in) < 6`. With only 6 bytes available the guard short-circuit no longer protects in[6]/in[7], which are then read out of bounds. Reverting `len(in) < 6` back to `len(in) < 8` flips the TestDemoKI8 reproducer from PANIC back to a clean U+FFFD substitution.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: escape.go:146 — the lone-high-surrogate guard `} else if len(in) < 8 || in[6] != ...
+  ` was mutated to `len(in) < 6`. With only 6 bytes available the guard short-circuit no longer protects
+  in[6]/in[7], which are then read out of bounds. Reverting `len(in) < 6` back to `len(in) < 8` flips
+  the TestDemoKI8 reproducer from PANIC back to a clean U+FFFD substitution.
+sanitizer: go-runtime-panic:index-out-of-range
 minimization_status: minimized
-mitigation: Restore the 8-byte minimum-length check in the lone-high-surrogate branch so a high surrogate at end-of-buffer substitutes U+FFFD instead of indexing past the buffer end.
-remediation: 'One-token revert in escape.go:146 (`len(in) < 6` → `len(in) < 8`).'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

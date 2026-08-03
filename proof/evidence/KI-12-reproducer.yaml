@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-029
+  command: go test -run TestDemoKI12 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-12
+  input_set:
+  - an empty byte slice passed to ArrayEach (contract/robustness nit, no security impact)
+  freshness_hashes:
+    proof/known-issues/KI-12.yaml: sha256:6efa4bfa1d2f4a9ea6b8f1518af4846cf1c7b506cb913d4c7797170d5cefa0f4
+    proof_demo_reproducers_test.go: sha256:09fbefc816cf4abb8481e9e07e7ddbca523eb2bbf8686be4ef494d01191ef110
+    parser.go: sha256:eea1c0da8b6210655b5b25f470037ff531993b621a831bdfbb88ec61eec1f710

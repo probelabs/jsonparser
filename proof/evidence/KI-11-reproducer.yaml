@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-012
+  command: go test -run TestDemoKI11 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-11
+  input_set:
+  - a Boolean token with trailing bytes after the literal, e.g. "trueish" or "falsehood"
+  freshness_hashes:
+    proof/known-issues/KI-11.yaml: sha256:899b56bc0bb2975c43477664c589659ac4417edf331a4ab96de9c2941a4127ec
+    proof_demo_reproducers_test.go: sha256:f466ba913fd04fa874910566c2f04bcfc3beb8996133adb04bafdbf7b10fcec0
+    parser.go: sha256:3a66b95fcc667da7529b4265913b36a48cf8671230576a380321c4f924612b7b

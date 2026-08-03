@@ -1,31 +1,79 @@
 id: KI-5
 title: decodeSingleUnicodeEscape length guard too small — OOB panic on a truncated \uXX escape
 affected_requirements:
-    - SYS-REQ-060
-    - SYS-REQ-014
-    - SYS-REQ-038
-commands:
-    - go test ./... -count=1
+- SYS-REQ-060
+- SYS-REQ-014
+- SYS-REQ-038
+affected_api: decodeSingleUnicodeEscape
 severity: critical
 severity_basis: reproducer
 risk: availability
 cve_surface: likely
-affected_api: Unescape, ParseString, GetString, Get
-attacker_input: a JSON string value containing a `\u` escape truncated near end-of-buffer (e.g. `\u00`)
-sanitizer: go-runtime-panic:index-out-of-range
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:H
+attacker_input: a JSON string value whose `\u` escape is truncated at end-of-buffer, e.g. {"k":"\u00"}
+environment_note: Reachable via any Get*/ParseString/Unescape call on attacker-controlled JSON containing
+  a truncated `\u` escape; the adjacent-memory-disclosure variant additionally requires the caller to
+  use the zero-copy GetUnsafeString path.
+description: 'decodeSingleUnicodeEscape (escape.go) decodes a `\uXXXX` escape by reading four hex digits
+  at in[2..5] after a minimum-length guard. On the proof-demo showcase branch that guard was weakened
+  from `if len(in) < 6` to `if len(in) < 4` (escape.go:88), so a truncated escape such as `\u00` — only
+  four bytes available — passes the check and the decoder indexes in[4] and in[5] one and two bytes past
+  the end of the backing slice. This is a textbook CWE-125 Out-of-bounds Read: the boundary condition
+  (fewer than the six bytes the escape requires) is no longer rejected before the indexed reads. On the
+  safe string path the Go runtime turns the read into an index-out-of-range panic; on the GetUnsafeString
+  zero-copy path the same arithmetic can instead read live adjacent bytes of the backing array, disclosing
+  memory that trails the JSON buffer. Intentional demo defect on the proof-demo showcase branch; never
+  shipped.'
+customer_impact: A consumer parsing attacker-controlled JSON can be crashed (denial of service) by a single
+  truncated `\u` escape, and on the zero-copy GetUnsafeString path an attacker may read a handful of adjacent
+  process-memory bytes that trail the JSON buffer. Intentional demo defect on the proof-demo showcase
+  branch; never shipped in a released jsonparser.
+mitigation: Cap incoming JSON size, validate or reject untrusted input before parsing, and avoid GetUnsafeString
+  on attacker-controlled data — the safe GetString path bounds the copy.
+remediation: Restore the 6-byte minimum-length guard in decodeSingleUnicodeEscape (escape.go:88, `if len(in)
+  < 4` -> `if len(in) < 6`) so a truncated `\uXX` returns (RuneError, false) before any indexed read.
+  Closes CWE-125 Out-of-bounds Read; cf. RFC 8259 section 7 on `\uXXXX` escapes and golang/go security
+  guidance on slice indexing.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package (go build ./...).
+- 'Call jsonparser.GetString([]byte(`{"k":"\u00"}`), "k") — or run: go test -run TestDemoKI5 -count=1
+  .'
+- Observe an index-out-of-range panic from decodeSingleUnicodeEscape instead of a clean MalformedStringEscapeError.
+- Revert escape.go:88 back to `if len(in) < 6` and re-run; the reproducer now returns the malformed-escape
+  error.
+evidence_manifests:
+- proof/evidence/KI-5-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI5 -count=1 .
-tripwire_mutation: 'escape.go:88 — the length guard was mutated from `if len(in) < 6` to `if len(in) < 4`. With only 4 bytes available, decodeSingleUnicodeEscape reads in[4] and in[5] out of bounds. Reverting `< 4` back to `< 6` flips the TestDemoKI5 reproducer from PANIC back to a clean MalformedStringEscapeError.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: escape.go:88 — the length guard was mutated from `if len(in) < 6` to `if len(in) <
+  4`. With only 4 bytes available, decodeSingleUnicodeEscape reads in[4] and in[5] out of bounds. Reverting
+  `< 4` back to `< 6` flips the TestDemoKI5 reproducer from PANIC back to a clean MalformedStringEscapeError.
+sanitizer: go-runtime-panic:index-out-of-range
 minimization_status: minimized
-mitigation: Restore the 6-byte minimum-length guard in decodeSingleUnicodeEscape so a truncated `\uXX` escape returns (RuneError, false) instead of indexing past the buffer end.
-remediation: 'One-token revert in escape.go:88 (`if len(in) < 4` → `if len(in) < 6`); the reproducer TestDemoKI5 then returns MalformedStringEscapeError instead of panicking.'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
+upstream_report:
+  vendor: buger/jsonparser
+  channel: security_disclosure
+  tracker_url: https://github.com/buger/jsonparser/security/advisories/GHSA-demo-ki5-oob
+  reference: truncated \u escape OOB read in decodeSingleUnicodeEscape
+  reported_at: '2026-07-28'
+  reported_by: human:buger
+  response:
+    status: acknowledged
+  schedule:
+    recheck_after: '2026-09-01'
+    recheck_cadence: monthly
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

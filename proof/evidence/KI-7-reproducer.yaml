@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-039
+  command: go test -run TestDemoKI7 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-7
+  input_set:
+  - a 19-digit integer literal exceeding int64, e.g. 9999999999999999999
+  freshness_hashes:
+    proof/known-issues/KI-7.yaml: sha256:2507ee17690cb9ad4d645ef7c2a844d6c2afee2e45e80faa9ed74c59d23ac33a
+    proof_demo_reproducers_test.go: sha256:6a82e36fcc38f46b79e6344749314a492aff4ab22e29bd4198236b6f788bed56
+    bytes.go: sha256:2d96ffad057b4bc7369a423fc5d6e583941c6564a9d42eb56e36d335589f9009

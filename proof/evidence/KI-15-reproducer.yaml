@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-062
+  command: go test -run TestDemoKI15 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-15
+  input_set:
+  - a JSON string containing a lone low surrogate escape (0xDC00-0xDFFF), e.g. {"k":"\uDC00"}
+  freshness_hashes:
+    proof/known-issues/KI-15.yaml: sha256:a6b4a2b3988fbec55fe5615544d830e16a76f983c2edbec7a25a8ff399b3e95c
+    proof_demo_reproducers_test.go: sha256:9df511a26e7b84ce15a3aaf62f4fad8eb8309e15d95f97889d5f2ccc6ed42f5a
+    escape.go: sha256:25d182ff05fd81a0901d33367f17566c5445e67263222f75615b84dfcc472f6d

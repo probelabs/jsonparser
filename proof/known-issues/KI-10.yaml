@@ -1,29 +1,57 @@
 id: KI-10
-title: arrayEachConfig empty-array sentinel checks for '}' instead of ']' — a valid `[]` is rejected as malformed
+title: arrayEachConfig empty-array sentinel checks for '}' instead of ']' — a valid `[]` is rejected as
+  malformed
 affected_requirements:
-    - SYS-REQ-028
-commands:
-    - go test ./... -count=1
+- SYS-REQ-028
+affected_api: arrayEachConfig
 severity: medium
 severity_basis: risk
 risk: correctness
 cve_surface: none
-affected_api: ArrayEach, ArrayEachErr
-attacker_input: a well-formed empty JSON array `[]`
-sanitizer: audit:hazard-sweep
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N
+attacker_input: a well-formed empty JSON array, []
+environment_note: Reachable via ArrayEach/ArrayEachErr on any empty array value; every empty-array input
+  is affected, so it surfaces immediately on valid data rather than needing a crafted payload.
+description: 'arrayEachConfig (parser.go) fast-paths an empty array by checking whether the first significant
+  byte is the closing bracket. On the proof-demo showcase branch the sentinel was mutated from `if data[offset]
+  == '']''` to `if data[offset] == ''}''` (parser.go:1763), so a valid empty array `[]` no longer matches
+  the empty-array sentinel; the loop then runs against the closing bracket and returns MalformedArrayError.
+  This is a CWE-20 Improper Input Validation: well-formed input is rejected because the sentinel compares
+  against the wrong delimiter. Intentional demo defect on the proof-demo showcase branch; never shipped.'
+customer_impact: Callers iterating arrays with ArrayEach get a spurious MalformedArrayError on the perfectly
+  valid empty array `[]`, breaking otherwise-correct code paths that handle empty collections. Intentional
+  demo defect on the proof-demo showcase branch; never shipped.
+mitigation: Special-case/short-circuit empty arrays in caller code, or treat MalformedArrayError on known
+  array fields as "empty", until the sentinel is corrected.
+remediation: Restore the `']'` closing-bracket comparison in the empty-array fast path of arrayEachConfig
+  (parser.go:1763, `data[offset] == '}'` -> `data[offset] == ']'`) so `[]` iterates zero times with a
+  nil error. Closes CWE-20 Improper Input Validation.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.ArrayEach on the document `[]` — or run: go test -run TestDemoKI10 -count=1 .'
+- Observe MalformedArrayError instead of a clean zero-iteration success.
+evidence_manifests:
+- proof/evidence/KI-10-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI10 -count=1 .
-tripwire_mutation: 'parser.go:1763 — the empty-array sentinel was mutated from `if data[offset] == '']''` to `if data[offset] == ''}''`. An empty array no longer matches the sentinel, so the loop runs against the closing bracket and returns MalformedArrayError. Reverting ''}'' back to '']'' flips the TestDemoKI10 reproducer from MalformedArrayError back to a clean zero-iteration success.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: parser.go:1763 — the empty-array sentinel was mutated from `if data[offset] == ']'`
+  to `if data[offset] == '}'`. An empty array no longer matches the sentinel, so the loop runs against
+  the closing bracket and returns MalformedArrayError. Reverting '}' back to ']' flips the TestDemoKI10
+  reproducer from MalformedArrayError back to a clean zero-iteration success.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: Restore the `']'` closing-bracket comparison in the empty-array fast path so `[]` is recognized as empty and iterates zero times with a nil error.
-remediation: 'One-token revert in parser.go:1763 (`data[offset] == ''}''` → `data[offset] == '']''`).'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

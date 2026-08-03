@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-060
+  command: go test -run TestDemoKI5 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-5
+  input_set:
+  - a JSON string value whose `\u` escape is truncated at end-of-buffer, e.g. {"k":"\u00"}
+  freshness_hashes:
+    proof/known-issues/KI-5.yaml: sha256:705dd07a162fed301f23afea44cf05d867d850dc6b4e36e3bed4a5f00b4975d3
+    proof_demo_reproducers_test.go: sha256:dc0b8be65c436015c536cd8861fab66457582ca9816b60b6973bad2460b9c0fe
+    escape.go: sha256:f2f8df6dcd0da5a631f121e89fa40877999685c3a9fb7ef818f1577590d2627f

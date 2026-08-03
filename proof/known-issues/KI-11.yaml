@@ -1,31 +1,59 @@
 id: KI-11
 title: ParseBoolean uses prefix match instead of exact equality — "trueish"/"falsehood" accepted as booleans
 affected_requirements:
-    - SYS-REQ-012
-    - SYS-REQ-036
-    - SYS-REQ-057
-commands:
-    - go test ./... -count=1
+- SYS-REQ-012
+- SYS-REQ-036
+- SYS-REQ-057
+affected_api: ParseBoolean
 severity: high
 severity_basis: risk
-risk: correctness
+risk: data_integrity
 cve_surface: unlikely
-affected_api: ParseBoolean, GetBoolean
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N
 attacker_input: a Boolean token with trailing bytes after the literal, e.g. "trueish" or "falsehood"
-sanitizer: audit:hazard-sweep
+environment_note: Reachable via ParseBoolean/GetBoolean on attacker-controlled JSON; any token beginning
+  with "true"/"false" is accepted, so trailing-garbage payloads decode as valid booleans.
+description: ParseBoolean (parser.go) decides a boolean by comparing the token bytes to the "true"/"false"
+  literals. On the proof-demo showcase branch both comparisons were changed from `bytes.Equal(b, trueLiteral)`
+  / `bytes.Equal(b, falseLiteral)` to `bytes.HasPrefix(...)` (parser.go:2137-2139), so any value that
+  merely begins with "true" or "false" — "trueish", "falsehood" — now parses successfully as the corresponding
+  boolean instead of erroring. This is a CWE-20 Improper Input Validation (prefix match where exact equality
+  is required), admitting malformed tokens as valid data. Intentional demo defect on the proof-demo showcase
+  branch; never shipped.
+customer_impact: Malformed boolean tokens with trailing bytes are silently accepted as true/false, so
+  authorization flags, feature toggles, or state derived from GetBoolean can be driven to the wrong value
+  by crafted input. Intentional demo defect on the proof-demo showcase branch; never shipped.
+mitigation: Re-validate boolean fields against exact "true"/"false" tokens in caller code, or use a strict
+  schema validator, until the exact comparison is restored.
+remediation: Restore exact-equality comparison in ParseBoolean (parser.go:2137 and 2139, `bytes.HasPrefix`
+  -> `bytes.Equal`) so only the literal "true"/"false" tokens parse and any trailing garbage returns MalformedValueError.
+  Closes CWE-20 Improper Input Validation.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetBoolean on a value of "trueish" — or run: go test -run TestDemoKI11 -count=1 .'
+- Observe the value decode as true with a nil error instead of MalformedValueError.
+evidence_manifests:
+- proof/evidence/KI-11-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI11 -count=1 .
-tripwire_mutation: 'parser.go:2137-2139 — both cases were mutated from `bytes.Equal(b, trueLiteral)` / `bytes.Equal(b, falseLiteral)` to `bytes.HasPrefix(...)`. Any value beginning with "true"/"false" now parses successfully. Reverting `bytes.HasPrefix` back to `bytes.Equal` on both lines flips the TestDemoKI11 reproducer from silent acceptance back to MalformedValueError.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: parser.go:2137-2139 — both cases were mutated from `bytes.Equal(b, trueLiteral)` /
+  `bytes.Equal(b, falseLiteral)` to `bytes.HasPrefix(...)`. Any value beginning with "true"/"false" now
+  parses successfully. Reverting `bytes.HasPrefix` back to `bytes.Equal` on both lines flips the TestDemoKI11
+  reproducer from silent acceptance back to MalformedValueError.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: Restore exact bytes.Equal comparison in ParseBoolean so only the literal "true"/"false" tokens parse and anything with trailing garbage returns MalformedValueError.
-remediation: 'Revert parser.go:2137 and 2139 (`bytes.HasPrefix` → `bytes.Equal`).'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

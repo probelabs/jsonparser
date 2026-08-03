@@ -1,30 +1,57 @@
 id: KI-6
 title: unescapeToUTF8Config length guard off-by-one — OOB panic reading in[1] on a lone trailing backslash
 affected_requirements:
-    - SYS-REQ-063
-    - SYS-REQ-038
-commands:
-    - go test ./... -count=1
+- SYS-REQ-063
+- SYS-REQ-038
+affected_api: unescapeToUTF8Config
 severity: high
 severity_basis: reproducer
 risk: availability
 cve_surface: likely
-affected_api: Unescape, ParseString
-attacker_input: a JSON string ending in a lone, dangling `\`
-sanitizer: go-runtime-panic:index-out-of-range
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H
+attacker_input: a JSON string value ending in a lone, dangling backslash, e.g. {"k":"\"}
+environment_note: Reachable through any Unescape/ParseString/Get* call on attacker-controlled JSON whose
+  string value ends in an unpaired trailing backslash; no special build tags or API options required.
+description: unescapeToUTF8Config (escape.go) consumes a backslash escape by reading the escape byte at
+  in[1] after a minimum-length guard. On the proof-demo showcase branch that guard was weakened from `if
+  len(in) < 2` to `if len(in) < 1` (escape.go:194), so a single-byte input `\` passes the check and the
+  escape switch reads in[1] one byte past the end of the slice — a CWE-125 Out-of-bounds Read reachable
+  via a lone trailing backslash. The Go runtime converts the read into an index-out-of-range panic, aborting
+  the parse. Intentional demo defect on the proof-demo showcase branch; never shipped.
+customer_impact: A single lone trailing backslash in attacker-controlled JSON crashes the consuming service
+  (denial of service) instead of surfacing a MalformedStringEscapeError. Intentional demo defect on the
+  proof-demo showcase branch; never shipped.
+mitigation: Bound untrusted input size and recover/validate around parse calls until the length guard
+  is restored; reject strings with dangling escapes before handing them to the parser.
+remediation: Restore the 2-byte minimum-length guard in unescapeToUTF8Config (escape.go:194, `if len(in)
+  < 1` -> `if len(in) < 2`) so a lone trailing backslash returns (-1, -1) and the caller surfaces MalformedStringEscapeError.
+  Closes CWE-125 Out-of-bounds Read; cf. RFC 8259 section 7.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetString on a value that ends in a lone backslash — or run: go test -run TestDemoKI6
+  -count=1 .'
+- Observe an index-out-of-range panic from unescapeToUTF8Config rather than MalformedStringEscapeError.
+evidence_manifests:
+- proof/evidence/KI-6-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI6 -count=1 .
-tripwire_mutation: 'escape.go:194 — the minimum-length guard was mutated from `if len(in) < 2` to `if len(in) < 1`. A single-byte input `\` then passes the guard and the switch reads in[1] out of bounds. Reverting `< 1` back to `< 2` flips the TestDemoKI6 reproducer from PANIC back to a clean MalformedStringEscapeError.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: escape.go:194 — the minimum-length guard was mutated from `if len(in) < 2` to `if len(in)
+  < 1`. A single-byte input `\` then passes the guard and the switch reads in[1] out of bounds. Reverting
+  `< 1` back to `< 2` flips the TestDemoKI6 reproducer from PANIC back to a clean MalformedStringEscapeError.
+sanitizer: go-runtime-panic:index-out-of-range
 minimization_status: minimized
-mitigation: Restore the 2-byte minimum-length guard in unescapeToUTF8Config so a lone trailing backslash returns (-1, -1) and the caller surfaces MalformedStringEscapeError.
-remediation: 'One-token revert in escape.go:194 (`if len(in) < 1` → `if len(in) < 2`).'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

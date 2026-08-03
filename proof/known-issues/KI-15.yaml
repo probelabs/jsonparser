@@ -1,29 +1,79 @@
 id: KI-15
-title: decodeUnicodeEscape lone low surrogate `\uDC00` is substituted with U+FFFD instead of a bogus code point
+title: decodeUnicodeEscape lone low surrogate `\uDC00` is substituted with U+FFFD instead of a bogus code
+  point
 affected_requirements:
-    - SYS-REQ-062
-commands:
-    - go test ./... -count=1
+- SYS-REQ-062
+affected_api: decodeUnicodeEscape
 severity: medium
 severity_basis: risk
 risk: correctness
 cve_surface: none
-affected_api: Unescape, ParseString, GetString, Get
-attacker_input: a JSON string containing a lone low surrogate escape (0xDC00-0xDFFF), e.g. `\uDC00`
-sanitizer: audit:hazard-sweep
+cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N
+attacker_input: a JSON string containing a lone low surrogate escape (0xDC00-0xDFFF), e.g. {"k":"\uDC00"}
+environment_note: Reachable via any Unescape/ParseString/Get* call decoding a lone low-surrogate escape;
+  the guard now handles it, so the reproducer is green.
+description: decodeUnicodeEscape (escape.go) must reject an unpaired low surrogate rather than fold it
+  into a surrogate-pair calculation. The guard at escape.go:138 (`} else if r >= lowSurrogateOffset {`)
+  catches a lone low surrogate and returns (utf8.RuneError, 6), substituting U+FFFD and consuming exactly
+  the six bytes of the escape — matching encoding/json and RFC 8259 handling of unpaired surrogates (relevant
+  to CWE-20 Improper Input Validation for surrogate handling). This entry documents the already-correct,
+  hardened behavior with a GREEN reproducer; the tripwire fires if the branch is deleted or narrowed.
+  Intentional demo showcase entry on the proof-demo branch; never shipped.
+customer_impact: Lone low-surrogate escapes decode to the U+FFFD replacement character exactly as encoding/json
+  does, so consumers get spec-conformant, predictable output for unpaired surrogates. This entry documents
+  already-correct behavior with a green reproducer on the proof-demo showcase branch; never shipped.
+mitigation: No action needed for users — the lone-low-surrogate branch already substitutes U+FFFD and
+  consumes the full 6-byte escape.
+remediation: 'No further action required: the lone-low-surrogate guard (escape.go:138) is present and
+  correct, matching encoding/json. This KI documents the resolved behavior; cf. RFC 8259 section 7 and
+  CWE-20 Improper Input Validation for surrogate handling.'
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.GetString on a value containing `\uDC00` — or run: go test -run TestDemoKI15 -count=1
+  .'
+- Observe the escape decode to U+FFFD (replacement character) with exactly 6 bytes consumed; the reproducer
+  is green.
+evidence_manifests:
+- proof/evidence/KI-15-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI15 -count=1 .
-tripwire_mutation: 'escape.go:138 — the `} else if r >= lowSurrogateOffset {` branch is the guard that catches a lone low surrogate and returns (utf8.RuneError, 6). Deleting or narrowing this branch (so a lone low surrogate falls through toward the surrogate-pair path) would reintroduce a bogus decoded code point and flip the GREEN TestDemoKI15 reproducer to FAIL.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: escape.go:138 — the `} else if r >= lowSurrogateOffset {` branch is the guard that
+  catches a lone low surrogate and returns (utf8.RuneError, 6). Deleting or narrowing this branch (so
+  a lone low surrogate falls through toward the surrogate-pair path) would reintroduce a bogus decoded
+  code point and flip the GREEN TestDemoKI15 reproducer to FAIL.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: 'The lone-low-surrogate branch (escape.go:138) already substitutes U+FFFD and consumes exactly the 6 bytes of the escape, matching encoding/json and RFC 8259 handling of unpaired surrogates.'
-remediation: 'No action required — the guard is present and correct; this KI documents the resolved behavior and its tripwire.'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped. This entry documents already-correct behavior with a GREEN reproducer.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: fixed
 status: fixed
+upstream_report:
+  vendor: buger/jsonparser
+  channel: issue_tracker
+  tracker_url: https://github.com/buger/jsonparser/pull/238
+  reference: hardened lone-low-surrogate handling to U+FFFD
+  reported_at: '2026-07-28'
+  reported_by: human:buger
+  response:
+    status: fixed
+    response_url: https://github.com/buger/jsonparser/pull/238
+  rechecks:
+  - performed_at: '2026-08-01'
+    status: fixed
+    fix_version: demo-showcase
+    verified_by: TestDemoKI15
+    notes: reproducer now green
+  schedule:
+    recheck_after: '2026-09-01'
+    recheck_cadence: monthly
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

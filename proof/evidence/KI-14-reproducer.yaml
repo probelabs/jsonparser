@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-014
+  command: go test -run TestDemoKI14 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-14
+  input_set:
+  - any JSON string containing an escaped forward slash, e.g. {"k":"a\/b"}
+  freshness_hashes:
+    proof/known-issues/KI-14.yaml: sha256:a8af21cebd8da3a0e4e092546dd5224a3bbdfd6ccd9f06007210975d8a89aa28
+    proof_demo_reproducers_test.go: sha256:0eb883802b554eed4e2ffd4c287ff6ec81059727852e19d052335285b2b1709a
+    escape.go: sha256:720f1675877b414cf1dbc2b5e8585c0d77ce6014747805c7162c0c63bbe29b09

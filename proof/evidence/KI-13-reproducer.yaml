@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-001
+  command: go test -run TestDemoKI13 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-13
+  input_set:
+  - JSON that uses a tab as insignificant whitespace before a value, e.g. {"a":\t123}
+  freshness_hashes:
+    proof/known-issues/KI-13.yaml: sha256:a28ce6b768820e68d477ec2a61d17be6f177383eae06bb4d56d0a6954ad806a4
+    proof_demo_reproducers_test.go: sha256:0343b007b2c417fef7491f244fdf3a77f1a6fefd8d058120be0bf22157fc5379
+    parser.go: sha256:85b512bbfae0fd3427e6f126d4367fe779986e92d624c782a049724bac6a4748

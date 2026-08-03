@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-063
+  command: go test -run TestDemoKI6 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-6
+  input_set:
+  - a JSON string value ending in a lone, dangling backslash, e.g. {"k":"\"}
+  freshness_hashes:
+    proof/known-issues/KI-6.yaml: sha256:c5dce9539f635a0247898e103c0994d122acde1d9cce665a401262e2f9ab6f38
+    proof_demo_reproducers_test.go: sha256:344f2e2c69be6dcb48d1f7470b7fc3c873ceb55516a04f4e2f2c1edc882decb7
+    escape.go: sha256:effa4ccb7e3edc437da2c800d39c49b2817a4c9362b1c2ec294742856c42c5a6

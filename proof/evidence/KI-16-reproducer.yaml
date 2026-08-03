@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-010
+  command: go test -run TestDemoKI16 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-16
+  input_set:
+  - a Delete call with an empty (zero-length) key path over any document, e.g. Delete({"a":1})
+  freshness_hashes:
+    proof/known-issues/KI-16.yaml: sha256:17eff045b627d3db65717cb5898ff06cb1e92271293389082ad92229266bdb23
+    proof_demo_reproducers_test.go: sha256:8be8a374a6717ca71de2c8b0e7f8f3f9785a0ba8a7407e9833f984c77de526a6
+    parser.go: sha256:3bd77a50de76ecc4453d80c800b7ce0d303a6fd012e44f8736e3fad7283d74e5

@@ -1,29 +1,57 @@
 id: KI-12
-title: arrayEachConfig empty-input guard returns the wrong documented error type (MalformedJsonError vs MalformedObjectError)
+title: arrayEachConfig empty-input guard returns the wrong documented error type (MalformedJsonError vs
+  MalformedObjectError)
 affected_requirements:
-    - SYS-REQ-029
-commands:
-    - go test ./... -count=1
+- SYS-REQ-029
+affected_api: arrayEachConfig
 severity: info
 severity_basis: risk
 risk: correctness
 cve_surface: none
-affected_api: ArrayEach
 attacker_input: an empty byte slice passed to ArrayEach (contract/robustness nit, no security impact)
-sanitizer: audit:hazard-sweep
+environment_note: Reachable only by calling ArrayEach with a zero-length input; purely a contract/error-type
+  consistency nit with no security or availability impact.
+description: 'arrayEachConfig (parser.go) guards a zero-length input by returning an error before scanning.
+  On the proof-demo showcase branch that empty-input return was changed from `MalformedObjectError` to
+  `MalformedJsonError` (parser.go:1709), so ArrayEach on empty input surfaces an error type that disagrees
+  with the documented contract and with the sibling arrayEachErr path. This is a CWE-20 Improper Input
+  Validation nit — the failure is still reported, but with the wrong (inconsistent) error value. Purely
+  informational: no security, availability, or data-integrity impact. Intentional demo defect on the proof-demo
+  showcase branch; never shipped.'
+customer_impact: Code that switches on the specific error type returned by ArrayEach for empty input sees
+  an inconsistent error value versus the documented contract and the arrayEachErr sibling — a cosmetic/robustness
+  nit with no runtime risk. Intentional demo defect on the proof-demo showcase branch; never shipped.
+mitigation: Treat any non-nil error from ArrayEach on empty input as "no elements"; do not branch on the
+  exact error type until the return is normalized.
+remediation: Restore MalformedObjectError as the empty-input return of arrayEachConfig (parser.go:1709,
+  `MalformedJsonError` -> `MalformedObjectError`) so the error type matches the documented contract and
+  the arrayEachErr path. Consistency fix for CWE-20 Improper Input Validation.
+reproduction_steps:
+- Check out the proof-demo showcase branch and build the package.
+- 'Call jsonparser.ArrayEach with an empty byte slice — or run: go test -run TestDemoKI12 -count=1 .'
+- Observe MalformedJsonError where the contract documents MalformedObjectError.
+evidence_manifests:
+- proof/evidence/KI-12-reproducer.yaml
+commands:
+- go test ./... -count=1
 reproducer_command: go test -run TestDemoKI12 -count=1 .
-tripwire_mutation: 'parser.go:1709 — the empty-input guard return was mutated from `MalformedObjectError` to `MalformedJsonError`, so ArrayEach on empty input surfaces an error type that disagrees with the documented contract and with arrayEachErr. Reverting `MalformedJsonError` back to `MalformedObjectError` flips the TestDemoKI12 reproducer from the wrong type back to the documented MalformedObjectError.'
-introduced_in: demo-showcase
-disclosure: public
+tripwire_mutation: parser.go:1709 — the empty-input guard return was mutated from `MalformedObjectError`
+  to `MalformedJsonError`, so ArrayEach on empty input surfaces an error type that disagrees with the
+  documented contract and with arrayEachErr. Reverting `MalformedJsonError` back to `MalformedObjectError`
+  flips the TestDemoKI12 reproducer from the wrong type back to the documented MalformedObjectError.
+sanitizer: audit:hazard-sweep
 minimization_status: minimized
-mitigation: Restore MalformedObjectError as the empty-input return of arrayEachConfig so the error type matches the documented contract and the sibling arrayEachErr path.
-remediation: 'One-token revert in parser.go:1709 (`MalformedJsonError` → `MalformedObjectError`).'
-customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+introduced_in: inception
+disclosure: public
 owner: human:buger
-review_date: "2026-08-03"
+review_date: '2026-08-03'
 release_disposition: open
 status: open
 history:
-    - at: "2026-08-03T09:00:00Z"
-      by: human:buger
-      action: created
+- at: '2026-08-03T09:00:00Z'
+  by: human:buger
+  action: created
+- at: '2026-08-03T12:00:00Z'
+  by: human:buger
+  action: edit
+  detail: 'enriched metadata: cvss, security classification, reproduction steps, evidence'

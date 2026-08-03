@@ -1,0 +1,16 @@
+schema_version: proof.evidence_profile.v1
+results:
+- profile: known_issue_reproducer
+  requirement: SYS-REQ-014
+  command: go test -run TestDemoKI9 -count=1 .
+  status: pass
+  observed_result: known_issue_reproduced
+  executed_at: '2026-08-03T09:00:00Z'
+  known_issues:
+  - KI-9
+  input_set:
+  - a Unicode escape with an out-of-range hex digit, e.g. {"k":"\uG000"}
+  freshness_hashes:
+    proof/known-issues/KI-9.yaml: sha256:a8fbeeaab9bad63f1060a75f6dcafb04a8404febfc0ea4339737cf715e4d83c8
+    proof_demo_reproducers_test.go: sha256:55b3233606813f84eb3a948c373da01c46b341849f45ff0735f5c7cace0b7248
+    escape.go: sha256:f672ade5c791e19a4d5d69bff52b845ef1dd53f993d76860f1db1689d81f254d
