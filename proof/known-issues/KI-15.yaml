@@ -1,0 +1,29 @@
+id: KI-15
+title: decodeUnicodeEscape lone low surrogate `\uDC00` is substituted with U+FFFD instead of a bogus code point
+affected_requirements:
+    - SYS-REQ-062
+commands:
+    - go test ./... -count=1
+severity: medium
+severity_basis: risk
+risk: correctness
+cve_surface: none
+affected_api: Unescape, ParseString, GetString, Get
+attacker_input: a JSON string containing a lone low surrogate escape (0xDC00-0xDFFF), e.g. `\uDC00`
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI15 -count=1 .
+tripwire_mutation: 'escape.go:138 — the `} else if r >= lowSurrogateOffset {` branch is the guard that catches a lone low surrogate and returns (utf8.RuneError, 6). Deleting or narrowing this branch (so a lone low surrogate falls through toward the surrogate-pair path) would reintroduce a bogus decoded code point and flip the GREEN TestDemoKI15 reproducer to FAIL.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: 'The lone-low-surrogate branch (escape.go:138) already substitutes U+FFFD and consumes exactly the 6 bytes of the escape, matching encoding/json and RFC 8259 handling of unpaired surrogates.'
+remediation: 'No action required — the guard is present and correct; this KI documents the resolved behavior and its tripwire.'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped. This entry documents already-correct behavior with a GREEN reproducer.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: fixed
+status: fixed
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

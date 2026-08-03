@@ -22,7 +22,9 @@ func parseInt(bytes []byte) (v int64, ok bool, overflow bool) {
 		return 0, false, false
 	}
 
-	if l-i < 19 {
+	// KI-7 (proof-portal demo — INTENTIONAL DEFECT, do not ship): fast-path digit threshold widened to 20, so 19-digit integers skip the overflow-checked slow path and wrap silently.
+	// Trigger: a 19-digit integer literal exceeding int64 (e.g. 9999999999999999999). Tracked in proof/known-issues/KI-7.yaml.
+	if l-i < 20 {
 		for ; i < l; i++ {
 			d := bytes[i] - '0'
 			if d > 9 {

@@ -1,0 +1,31 @@
+id: KI-11
+title: ParseBoolean uses prefix match instead of exact equality — "trueish"/"falsehood" accepted as booleans
+affected_requirements:
+    - SYS-REQ-012
+    - SYS-REQ-036
+    - SYS-REQ-057
+commands:
+    - go test ./... -count=1
+severity: high
+severity_basis: risk
+risk: correctness
+cve_surface: unlikely
+affected_api: ParseBoolean, GetBoolean
+attacker_input: a Boolean token with trailing bytes after the literal, e.g. "trueish" or "falsehood"
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI11 -count=1 .
+tripwire_mutation: 'parser.go:2137-2139 — both cases were mutated from `bytes.Equal(b, trueLiteral)` / `bytes.Equal(b, falseLiteral)` to `bytes.HasPrefix(...)`. Any value beginning with "true"/"false" now parses successfully. Reverting `bytes.HasPrefix` back to `bytes.Equal` on both lines flips the TestDemoKI11 reproducer from silent acceptance back to MalformedValueError.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore exact bytes.Equal comparison in ParseBoolean so only the literal "true"/"false" tokens parse and anything with trailing garbage returns MalformedValueError.
+remediation: 'Revert parser.go:2137 and 2139 (`bytes.HasPrefix` → `bytes.Equal`).'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

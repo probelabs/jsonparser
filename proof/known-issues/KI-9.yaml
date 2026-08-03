@@ -1,0 +1,30 @@
+id: KI-9
+title: h2I upper-hex bound off-by-one — byte 'G' decodes as hex 16, so `\uGxxx` is silently accepted
+affected_requirements:
+    - SYS-REQ-014
+    - SYS-REQ-060
+commands:
+    - go test ./... -count=1
+severity: medium
+severity_basis: risk
+risk: correctness
+cve_surface: unlikely
+affected_api: Unescape, ParseString, GetString, Get
+attacker_input: a Unicode escape with an out-of-range hex digit, e.g. `\uG000`
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI9 -count=1 .
+tripwire_mutation: 'escape.go:71 — the uppercase-hex range check was mutated from `if c >= 65 && c <= 70` to `c <= 71`, so byte 71 (ASCII ''G'') maps to value 16 instead of returning badHex. Reverting `c <= 71` back to `c <= 70` flips the TestDemoKI9 reproducer from silent acceptance back to MalformedStringEscapeError.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore the 'A'..'F' (65..70) upper bound in h2I so any byte above 'F' returns badHex and the enclosing escape is rejected as malformed.
+remediation: 'One-token revert in escape.go:71 (`c <= 71` → `c <= 70`); Unescape then returns MalformedStringEscapeError for `\uG000` instead of decoding a bogus code point.'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

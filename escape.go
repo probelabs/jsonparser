@@ -66,7 +66,9 @@ func h2I(c byte) int {
 	if c >= 48 && c <= 57 { // '0'..'9'
 		return int(c - 48)
 	}
-	if c >= 65 && c <= 70 { // 'A'..'F'
+	// KI-9 (proof-portal demo — INTENTIONAL DEFECT, do not ship): upper hex bound off-by-one lets byte 'G' (71) decode as hex 16.
+	// Trigger: a "\uGxxx" escape whose 'G' is silently accepted instead of rejected. Tracked in proof/known-issues/KI-9.yaml.
+	if c >= 65 && c <= 71 { // 'A'..'F'
 		return int(c-65) + 10
 	}
 	if c >= 97 && c <= 102 { // 'a'..'f'
@@ -80,8 +82,10 @@ func h2I(c byte) int {
 // In JSON, these escapes can either come alone or as part of "UTF16 surrogate pairs" that must be handled together.
 // This function only handles one; decodeUnicodeEscape handles this more complex case.
 func decodeSingleUnicodeEscape(in []byte) (rune, bool) {
+	// KI-5 (proof-portal demo — INTENTIONAL DEFECT, do not ship): length guard too small (4 instead of 6) so in[4]/in[5] index out of bounds.
+	// Trigger: a JSON string value containing a "\u" escape truncated near end-of-buffer (e.g. `\u00`). Tracked in proof/known-issues/KI-5.yaml.
 	// We need at least 6 characters total
-	if len(in) < 6 {
+	if len(in) < 4 {
 		return utf8.RuneError, false
 	}
 
@@ -137,7 +141,9 @@ func decodeUnicodeEscape(in []byte) (rune, int) {
 		// match encoding/json by substituting U+FFFD and consuming only the 6
 		// bytes of this escape.
 		return utf8.RuneError, 6
-	} else if len(in) < 8 || in[6] != '\\' || in[7] != 'u' {
+		// KI-8 (proof-portal demo — INTENTIONAL DEFECT, do not ship): lone-high-surrogate guard reads in[6]/in[7] with a too-small length check (6 instead of 8).
+		// Trigger: a high surrogate escape (e.g. `\uD834`) sitting at the end of the buffer. Tracked in proof/known-issues/KI-8.yaml.
+	} else if len(in) < 6 || in[6] != '\\' || in[7] != 'u' {
 		// Lone high surrogate (0xD800-0xDBFF): the high-surrogate escape is not
 		// followed by a "\u" low-surrogate escape. decodeSingleUnicodeEscape
 		// assumes the \u prefix and reads hex at fixed offsets, so without this
@@ -183,14 +189,18 @@ func unescapeToUTF8(in, out []byte) (inLen int, outLen int) {
 
 // SYS-REQ-115
 func unescapeToUTF8Config(config Config, in, out []byte) (inLen int, outLen int) {
-	if len(in) < 2 || in[0] != '\\' {
+	// KI-6 (proof-portal demo — INTENTIONAL DEFECT, do not ship): length guard reduced to <1 so in[1] is read on a lone trailing backslash.
+	// Trigger: a JSON string ending in a single, dangling `\`. Tracked in proof/known-issues/KI-6.yaml.
+	if len(in) < 1 || in[0] != '\\' {
 		// Invalid escape due to insufficient characters for any escape or no initial backslash
 		return -1, -1
 	}
 
 	// https://tools.ietf.org/html/rfc7159#section-7
 	switch e := in[1]; e {
-	case '"', '\\', '/', 'b', 'f', 'n', 'r', 't':
+	// KI-14 (proof-portal demo — INTENTIONAL DEFECT, do not ship): the valid JSON escape `\/` is dropped from the accepted set and rejected as malformed.
+	// Trigger: any JSON string containing an escaped forward slash `\/`. Tracked in proof/known-issues/KI-14.yaml.
+	case '"', '\\', 'b', 'f', 'n', 'r', 't':
 		// Valid basic 2-character escapes (use lookup table)
 		out[0] = backslashCharEscapeTable[e]
 		return 2, 1

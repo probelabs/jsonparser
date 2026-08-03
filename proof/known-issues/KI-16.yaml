@@ -1,0 +1,29 @@
+id: KI-16
+title: Delete with no key path returns an empty, non-aliasing slice (root-delete contract)
+affected_requirements:
+    - SYS-REQ-010
+commands:
+    - go test ./... -count=1
+severity: low
+severity_basis: risk
+risk: correctness
+cve_surface: none
+affected_api: Delete, DeleteFound
+attacker_input: a Delete call with an empty (zero-length) key path over any document, e.g. Delete(`{"a":1}`)
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI16 -count=1 .
+tripwire_mutation: 'parser.go:1256 — the no-path guard `if lk == 0 { return make([]byte, 0), true }` in deleteFoundConfig defines the root-delete contract (empty document, fresh backing array, found=true). Removing this guard, or returning the aliased input slice instead of a fresh empty slice, would flip the GREEN TestDemoKI16 reproducer to FAIL.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: 'The no-path guard (parser.go:1256) already returns a fresh zero-length slice for the root-delete case, so deleting with no keys yields an empty result that does not alias the caller''s input.'
+remediation: 'No action required — the guard is present and correct; this KI documents the resolved behavior and its tripwire.'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped. This entry documents already-correct behavior with a GREEN reproducer.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: fixed
+status: fixed
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

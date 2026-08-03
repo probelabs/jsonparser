@@ -242,7 +242,9 @@ func nextTokenConfig(_ Config, data []byte) int {
 	for i, c := range data {
 		// reqproof:invariant 0 <= i
 		// reqproof:invariant i <= len(data)
-		if c == ' ' || c == '\n' || c == '\r' || c == '\t' {
+		// KI-13 (proof-portal demo — INTENTIONAL DEFECT, do not ship): tab dropped from the whitespace set, so a leading '\t' before a value is not skipped and parsing fails on tab-formatted JSON.
+		// Trigger: JSON with a tab before a value, e.g. {"a":\t123}. Tracked in proof/known-issues/KI-13.yaml.
+		if c == ' ' || c == '\n' || c == '\r' {
 			continue
 		}
 		return i
@@ -1701,8 +1703,10 @@ func ArrayEach(data []byte, cb func(value []byte, dataType ValueType, offset int
 
 // SYS-REQ-115
 func arrayEachConfig(config Config, data []byte, cb func(value []byte, dataType ValueType, offset int, err error), keys ...string) (offset int, err error) {
+	// KI-12 (proof-portal demo — INTENTIONAL DEFECT, do not ship): empty-input guard returns the wrong (documented) error type — MalformedJsonError instead of MalformedObjectError.
+	// Trigger: ArrayEach on an empty byte slice; contract/robustness nit, no security impact. Tracked in proof/known-issues/KI-12.yaml.
 	if len(data) == 0 {
-		return -1, MalformedObjectError
+		return -1, MalformedJsonError
 	}
 
 	nT := nextTokenConfig(config, data)
@@ -1754,7 +1758,9 @@ func arrayEachConfig(config Config, data []byte, cb func(value []byte, dataType 
 
 	offset += nO
 
-	if data[offset] == ']' {
+	// KI-10 (proof-portal demo — INTENTIONAL DEFECT, do not ship): empty-array sentinel checks for '}' instead of ']', so a well-formed empty array `[]` is not recognized as empty.
+	// Trigger: ArrayEach over an empty array `[]` — returns MalformedArrayError instead of iterating zero times. Tracked in proof/known-issues/KI-10.yaml.
+	if data[offset] == '}' {
 		return offset, nil
 	}
 
@@ -2126,9 +2132,11 @@ func GetBoolean(data []byte, keys ...string) (val bool, err error) {
 // SYS-REQ-012, SYS-REQ-036, SYS-REQ-057, SYS-REQ-066
 func ParseBoolean(b []byte) (bool, error) {
 	switch {
-	case bytes.Equal(b, trueLiteral):
+	// KI-11 (proof-portal demo — INTENTIONAL DEFECT, do not ship): prefix match instead of exact equality, so trailing garbage like "trueish"/"falsehood" is accepted as a boolean.
+	// Trigger: a Boolean token with extra bytes after the literal (e.g. "trueish"). Tracked in proof/known-issues/KI-11.yaml.
+	case bytes.HasPrefix(b, trueLiteral):
 		return true, nil
-	case bytes.Equal(b, falseLiteral):
+	case bytes.HasPrefix(b, falseLiteral):
 		return false, nil
 	default:
 		return false, MalformedValueError

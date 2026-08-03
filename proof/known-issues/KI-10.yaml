@@ -1,0 +1,29 @@
+id: KI-10
+title: arrayEachConfig empty-array sentinel checks for '}' instead of ']' — a valid `[]` is rejected as malformed
+affected_requirements:
+    - SYS-REQ-028
+commands:
+    - go test ./... -count=1
+severity: medium
+severity_basis: risk
+risk: correctness
+cve_surface: none
+affected_api: ArrayEach, ArrayEachErr
+attacker_input: a well-formed empty JSON array `[]`
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI10 -count=1 .
+tripwire_mutation: 'parser.go:1763 — the empty-array sentinel was mutated from `if data[offset] == '']''` to `if data[offset] == ''}''`. An empty array no longer matches the sentinel, so the loop runs against the closing bracket and returns MalformedArrayError. Reverting ''}'' back to '']'' flips the TestDemoKI10 reproducer from MalformedArrayError back to a clean zero-iteration success.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore the `']'` closing-bracket comparison in the empty-array fast path so `[]` is recognized as empty and iterates zero times with a nil error.
+remediation: 'One-token revert in parser.go:1763 (`data[offset] == ''}''` → `data[offset] == '']''`).'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

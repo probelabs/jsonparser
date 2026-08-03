@@ -1,0 +1,30 @@
+id: KI-6
+title: unescapeToUTF8Config length guard off-by-one — OOB panic reading in[1] on a lone trailing backslash
+affected_requirements:
+    - SYS-REQ-063
+    - SYS-REQ-038
+commands:
+    - go test ./... -count=1
+severity: high
+severity_basis: reproducer
+risk: availability
+cve_surface: likely
+affected_api: Unescape, ParseString
+attacker_input: a JSON string ending in a lone, dangling `\`
+sanitizer: go-runtime-panic:index-out-of-range
+reproducer_command: go test -run TestDemoKI6 -count=1 .
+tripwire_mutation: 'escape.go:194 — the minimum-length guard was mutated from `if len(in) < 2` to `if len(in) < 1`. A single-byte input `\` then passes the guard and the switch reads in[1] out of bounds. Reverting `< 1` back to `< 2` flips the TestDemoKI6 reproducer from PANIC back to a clean MalformedStringEscapeError.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore the 2-byte minimum-length guard in unescapeToUTF8Config so a lone trailing backslash returns (-1, -1) and the caller surfaces MalformedStringEscapeError.
+remediation: 'One-token revert in escape.go:194 (`if len(in) < 1` → `if len(in) < 2`).'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

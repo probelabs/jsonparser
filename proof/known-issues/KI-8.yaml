@@ -1,0 +1,30 @@
+id: KI-8
+title: decodeUnicodeEscape lone-high-surrogate guard reads in[6]/in[7] with a too-small length check — OOB panic
+affected_requirements:
+    - SYS-REQ-062
+    - SYS-REQ-061
+commands:
+    - go test ./... -count=1
+severity: high
+severity_basis: reproducer
+risk: availability
+cve_surface: likely
+affected_api: Unescape, ParseString
+attacker_input: a high-surrogate escape (e.g. `\uD834`) sitting at the very end of the buffer
+sanitizer: go-runtime-panic:index-out-of-range
+reproducer_command: go test -run TestDemoKI8 -count=1 .
+tripwire_mutation: 'escape.go:146 — the lone-high-surrogate guard `} else if len(in) < 8 || in[6] != ... ` was mutated to `len(in) < 6`. With only 6 bytes available the guard short-circuit no longer protects in[6]/in[7], which are then read out of bounds. Reverting `len(in) < 6` back to `len(in) < 8` flips the TestDemoKI8 reproducer from PANIC back to a clean U+FFFD substitution.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore the 8-byte minimum-length check in the lone-high-surrogate branch so a high surrogate at end-of-buffer substitutes U+FFFD instead of indexing past the buffer end.
+remediation: 'One-token revert in escape.go:146 (`len(in) < 6` → `len(in) < 8`).'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

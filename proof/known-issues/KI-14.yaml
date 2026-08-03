@@ -1,0 +1,30 @@
+id: KI-14
+title: unescapeToUTF8Config drops '/' from the accepted escapes — the valid JSON escape `\/` is rejected as malformed
+affected_requirements:
+    - SYS-REQ-014
+    - SYS-REQ-038
+commands:
+    - go test ./... -count=1
+severity: low
+severity_basis: risk
+risk: correctness
+cve_surface: none
+affected_api: Unescape, ParseString, GetString, Get
+attacker_input: any JSON string containing an escaped forward slash `\/`
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI14 -count=1 .
+tripwire_mutation: 'escape.go:203 — the basic-escape switch case lost its `''/'',` entry (mutated from `case ''"'', ''\\'', ''/'', ''b'', ...` to drop the slash). `\/` now falls through to the error return. Re-adding `''/'',` to the case list flips the TestDemoKI14 reproducer from MalformedStringEscapeError back to decoding `/`.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore `'/'` to the basic 2-character escape case in unescapeToUTF8Config; RFC 8259 explicitly permits `\/`, and backslashCharEscapeTable already maps it.
+remediation: 'Re-add `''/'',` to the escape case at escape.go:203.'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

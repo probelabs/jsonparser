@@ -1,0 +1,30 @@
+id: KI-13
+title: nextTokenConfig drops the tab from its whitespace set — parsing fails on tab-formatted JSON
+affected_requirements:
+    - SYS-REQ-001
+    - SYS-REQ-026
+commands:
+    - go test ./... -count=1
+severity: low
+severity_basis: risk
+risk: correctness
+cve_surface: none
+affected_api: Get, GetString, GetInt, ArrayEach, ObjectEach
+attacker_input: JSON with a tab before a value, e.g. {"a":\t123}
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI13 -count=1 .
+tripwire_mutation: 'parser.go:247 — the whitespace test lost its `|| c == ''\t''` term (mutated from `c == '' '' || c == ''\n'' || c == ''\r'' || c == ''\t''` to drop the tab). A leading tab is no longer skipped, so token scanning stops on it. Restoring the `|| c == ''\t''` term flips the TestDemoKI13 reproducer from a parse failure back to reading the value 123.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore the tab (`'\t'`) as insignificant whitespace in nextTokenConfig so tab-formatted JSON parses per RFC 8259 (which lists tab among the four insignificant whitespace bytes).
+remediation: 'Re-add `|| c == ''\t''` to the whitespace test at parser.go:247.'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

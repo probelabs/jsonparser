@@ -1,0 +1,31 @@
+id: KI-5
+title: decodeSingleUnicodeEscape length guard too small — OOB panic on a truncated \uXX escape
+affected_requirements:
+    - SYS-REQ-060
+    - SYS-REQ-014
+    - SYS-REQ-038
+commands:
+    - go test ./... -count=1
+severity: critical
+severity_basis: reproducer
+risk: availability
+cve_surface: likely
+affected_api: Unescape, ParseString, GetString, Get
+attacker_input: a JSON string value containing a `\u` escape truncated near end-of-buffer (e.g. `\u00`)
+sanitizer: go-runtime-panic:index-out-of-range
+reproducer_command: go test -run TestDemoKI5 -count=1 .
+tripwire_mutation: 'escape.go:88 — the length guard was mutated from `if len(in) < 6` to `if len(in) < 4`. With only 4 bytes available, decodeSingleUnicodeEscape reads in[4] and in[5] out of bounds. Reverting `< 4` back to `< 6` flips the TestDemoKI5 reproducer from PANIC back to a clean MalformedStringEscapeError.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore the 6-byte minimum-length guard in decodeSingleUnicodeEscape so a truncated `\uXX` escape returns (RuneError, false) instead of indexing past the buffer end.
+remediation: 'One-token revert in escape.go:88 (`if len(in) < 4` → `if len(in) < 6`); the reproducer TestDemoKI5 then returns MalformedStringEscapeError instead of panicking.'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created

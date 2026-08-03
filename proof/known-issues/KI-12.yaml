@@ -1,0 +1,29 @@
+id: KI-12
+title: arrayEachConfig empty-input guard returns the wrong documented error type (MalformedJsonError vs MalformedObjectError)
+affected_requirements:
+    - SYS-REQ-029
+commands:
+    - go test ./... -count=1
+severity: info
+severity_basis: risk
+risk: correctness
+cve_surface: none
+affected_api: ArrayEach
+attacker_input: an empty byte slice passed to ArrayEach (contract/robustness nit, no security impact)
+sanitizer: audit:hazard-sweep
+reproducer_command: go test -run TestDemoKI12 -count=1 .
+tripwire_mutation: 'parser.go:1709 — the empty-input guard return was mutated from `MalformedObjectError` to `MalformedJsonError`, so ArrayEach on empty input surfaces an error type that disagrees with the documented contract and with arrayEachErr. Reverting `MalformedJsonError` back to `MalformedObjectError` flips the TestDemoKI12 reproducer from the wrong type back to the documented MalformedObjectError.'
+introduced_in: demo-showcase
+disclosure: private
+minimization_status: minimized
+mitigation: Restore MalformedObjectError as the empty-input return of arrayEachConfig so the error type matches the documented contract and the sibling arrayEachErr path.
+remediation: 'One-token revert in parser.go:1709 (`MalformedJsonError` → `MalformedObjectError`).'
+customer_impact: 'No released version affected — intentional demo defect on the proof-demo showcase branch; never shipped.'
+owner: human:buger
+review_date: "2026-08-03"
+release_disposition: open
+status: open
+history:
+    - at: "2026-08-03T09:00:00Z"
+      by: human:buger
+      action: created
