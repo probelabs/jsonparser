@@ -48,25 +48,6 @@ owner: human:buger
 review_date: '2026-08-03'
 release_disposition: fixed
 status: fixed
-upstream_report:
-  vendor: buger/jsonparser
-  channel: issue_tracker
-  tracker_url: https://github.com/buger/jsonparser/pull/239
-  reference: hardened root-delete to return a fresh non-aliasing slice
-  reported_at: '2026-07-28'
-  reported_by: human:buger
-  response:
-    status: fixed
-    response_url: https://github.com/buger/jsonparser/pull/239
-  rechecks:
-  - performed_at: '2026-08-01'
-    status: fixed
-    fix_version: demo-showcase
-    verified_by: TestDemoKI16
-    notes: reproducer now green
-  schedule:
-    recheck_after: '2026-09-01'
-    recheck_cadence: monthly
 history:
 - at: '2026-08-03T09:00:00Z'
   by: human:buger

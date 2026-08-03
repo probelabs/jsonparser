@@ -53,18 +53,6 @@ owner: human:buger
 review_date: '2026-08-03'
 release_disposition: open
 status: open
-upstream_report:
-  vendor: buger/jsonparser
-  channel: security_disclosure
-  tracker_url: https://github.com/buger/jsonparser/issues/241
-  reference: 19-digit parseInt overflow wraps silently instead of erroring
-  reported_at: '2026-07-28'
-  reported_by: human:buger
-  response:
-    status: fix_in_progress
-  schedule:
-    recheck_after: '2026-09-01'
-    recheck_cadence: monthly
 history:
 - at: '2026-08-03T09:00:00Z'
   by: human:buger
