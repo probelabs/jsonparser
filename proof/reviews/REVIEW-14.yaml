@@ -1,0 +1,11 @@
+id: REVIEW-14
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-011
+decision: approved
+comment: 'GetUnsafeString satisfies !addressed_value_is_string | returns_unsafe_string_view: on a successful Get it returns bytesToString(&v), a zero-copy mapping of the addressed raw value bytes directly to a Go string with no Unescape/ParseString call, so JSON escapes are deliberately NOT processed — exactly the unsafe raw view the requirement demands. The property test TestPropertyTypedAccessorsRoundTrip only compares GetUnsafeString against expected values on the no-escape case (strings.ContainsAny gate), matching the no-unescaping semantics, and TestGetUnsafeString provides the example witness.'
+citations:
+    - parser.go:2034@GetUnsafeString
+    - parser_test.go:1539@TestGetUnsafeString
+    - property_test.go:210@TestPropertyTypedAccessorsRoundTrip

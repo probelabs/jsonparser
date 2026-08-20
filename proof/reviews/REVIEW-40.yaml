@@ -1,0 +1,12 @@
+id: REVIEW-40
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-058
+decision: approved
+comment: Both exact int64 boundaries decode correctly. Max '9223372036854775807' (19 digits) takes the fast path (bytes.go:40) and accumulates to exactly maxInt64 with no intermediate overflow; min '-9223372036854775808' (l-i=19) also takes the fast path where v=10*v+d wraps to math.MinInt64 and the neg branch's '-v' wraps back to MinInt64 (bytes.go:46,49-51), and ParseInt returns v with nil error (parser.go:2168-2176). TestParseIntBoundaryValues asserts both equal math.MaxInt64/MinInt64. KI-2 (sign-only '-') is linked here but is status=fixed via the 'if i == l' guard (bytes.go:34-36) and concerns a different partition, so no open defect affects the boundary formula.
+citations:
+    - bytes.go:40@parseInt
+    - bytes.go:49@parseInt
+    - parser.go:2168@ParseInt
+    - deep_spec_test.go:504@TestParseIntBoundaryValues

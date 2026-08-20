@@ -1,0 +1,10 @@
+id: REVIEW-53
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-073
+decision: approved
+comment: 'GetString checks the ValueType returned by Get and, when it is not String, returns a type-mismatch error: NullValueError for null and `fmt.Errorf("Value is not a string: %s", ...)` for any other non-string type (parser.go:2054-2059). This covers numbers, booleans, objects, arrays and null as the description enumerates, satisfying !getstring_addressed_value_is_not_string | returns_getstring_type_mismatch_error. Every branch returns a non-nil error before reaching the raw/ParseString return paths.'
+citations:
+    - parser.go:2054@GetString
+    - parser.go:2058@GetString

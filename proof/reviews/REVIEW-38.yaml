@@ -1,0 +1,12 @@
+id: REVIEW-38
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-056
+decision: approved
+comment: Delete resolves the target via internalGetConfig, and when the addressed value is truncated mid-structure (e.g. '{"a":{"b":1') that call returns an error and deleteFoundConfig returns the original data slice unchanged with found=false (parser.go:1283-1286); the tokenEnd sentinel path also returns data unchanged when no trailing delimiter is found (parser.go:1291-1294). Delete() discards the found flag and returns that unchanged payload, and all subsequent index math is bounds-checked, so no panic occurs. The five MCDC rows and TestDeleteTruncatedMidStructure confirm unchanged output and no panic.
+citations:
+    - parser.go:1283@deleteFoundConfig
+    - parser.go:1291@deleteFoundConfig
+    - parser.go:1239@Delete
+    - deep_spec_test.go:287@TestDeleteTruncatedMidStructure

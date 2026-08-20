@@ -1,6 +1,6 @@
 id: SYS-REQ-031
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -35,15 +35,23 @@ verification:
     formalization_status: valid
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:b3cf3c5a629afbe3172aaa6089802c9c2dac5a4974a76c213f0c060df8718d79
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: agent:codex
     created_at: "2026-04-14T15:45:00Z"
-    last_modified_by: agent:codex
-    last_modified_at: "2026-04-14T15:45:00Z"
-verification_state: passing
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:14Z"
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-14T15:45:00Z"
@@ -56,4 +64,14 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=1; tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:09Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=1; review_record:REVIEW-17=present
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:03Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=2; review_record:REVIEW-17=present | tests_pass:test_status=failing
+          changed_by: human:buger
 obligation_class: malformed_input

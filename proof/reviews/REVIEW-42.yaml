@@ -1,0 +1,12 @@
+id: REVIEW-42
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-060
+decision: approved
+comment: 'The formula requires a truncated escape sequence in ParseString to yield MalformedValueError, and the structure is sound: ParseString (parser.go:2148) returns MalformedValueError whenever Unescape errors, and decodeSingleUnicodeEscape is meant to reject short input before reading the four hex digits. However two tracked defects break this in the demo tree: KI-5 weakened the length guard at escape.go:88 from `len(in) < 6` to `len(in) < 4`, so a truncated `\u00` passes the guard and decodeSingleUnicodeEscape indexes in[4]/in[5] out of bounds, panicking instead of returning an error, and KI-9 widened the hex bound at escape.go:71 to `c <= 71` so byte ''G'' decodes as 16. I confirmed the failure empirically: `go test -run TestTruncatedEscapeSequences` panics with index-out-of-range at escape.go:93 via decodeSingleUnicodeEscape, exactly the KI-5 path. Both defects are honestly tracked as open KIs, so the requirement is approvable despite verification failing.'
+citations:
+    - parser.go:2148@ParseString
+    - escape.go:88@decodeSingleUnicodeEscape
+    - escape.go:93@decodeSingleUnicodeEscape
+    - escape.go:71@h2I

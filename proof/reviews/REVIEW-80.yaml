@@ -1,0 +1,11 @@
+id: REVIEW-80
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-100
+decision: approved
+comment: For an existing key path setConfig (parser.go:1402) resolves the value span via internalGetConfig (parser.go:1408) and splices setValue over the same [startOffset,endOffset) range, so applying Set again with the same key and same value produces byte-identical output — the operation is idempotent as required. The insertion is a pure function of (data, setValue, keys) with no state carried across calls. TestSetIdempotency applies Set twice on the second call's own output and asserts bytes.Equal, passing.
+citations:
+    - parser.go:1397@Set
+    - parser.go:1402@setConfig
+    - parser.go:1408@internalGetConfig

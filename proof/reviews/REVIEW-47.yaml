@@ -1,0 +1,12 @@
+id: REVIEW-47
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-067
+decision: approved
+comment: The requirement is that ParseString on an empty slice returns an empty Go string with no error (empty body is a valid string). ParseString (parser.go:2148) calls Unescape, which in unescapeConfig (escape.go:300) computes firstBackslash = bytes.IndexByte(in, '\\'); for empty input this is -1, so it returns `(in, nil)` unchanged, and ParseString returns string([]byte{}) == "" with nil error. Because empty input contains no backslash, the KI-5/KI-6 escape-decoding defects are never reached. TestParseStringEmpty and TestMCDC_SYS_REQ_067_Row2/Row3 confirm the empty-identity result. No KI is attached.
+citations:
+    - parser.go:2148@ParseString
+    - escape.go:300@unescapeConfig
+    - escape.go:302@unescapeConfig
+    - deep_spec_test.go:585@TestParseStringEmpty

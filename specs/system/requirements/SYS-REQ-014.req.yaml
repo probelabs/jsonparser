@@ -59,7 +59,7 @@ obligation_hazards:
     - class: encoding_safety
       worst_case: ParseString on a raw body containing a malformed UTF-8 sequence (e.g. a lone surrogate) returns a Go string with invalid runes; the caller re-serializes it as invalid JSON or panics in encoding-aware downstream like bufio.
       severity: high
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-13T17:27:00Z"
@@ -77,4 +77,9 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=1; tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:07Z"
+          from: verification=passing
+          to: verification=failing
+          reason: auto-derived [passing→failing] signals=4; known_issue:KI-14=failing | known_issue:KI-5=failing | known_issue:KI-9=failing | tests_pass:test_status=failing
+          changed_by: human:buger
 obligation_class: nominal

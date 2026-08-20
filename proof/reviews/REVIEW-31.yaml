@@ -1,0 +1,11 @@
+id: REVIEW-31
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-049
+decision: approved
+comment: 'Every internalGetConfig call in the delete path checks the returned error and short-circuits to the safe fallback `return data, false` rather than proceeding with the returned offsets: the parent-path lookup (parser.go:1270-1273), the value-span lookup in the object branch (parser.go:1284-1286), and the full-path lookup in the array branch (parser.go:1320-1323). No branch discards the error and continues with the offsets, so invalid offsets can never drive the copy/slice at parser.go:1380-1382. MCDC Row3 propagated-error witness passes.'
+citations:
+    - parser.go:1270@deleteFoundConfig
+    - parser.go:1284@deleteFoundConfig
+    - parser.go:1320@deleteFoundConfig

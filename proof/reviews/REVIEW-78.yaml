@@ -1,0 +1,11 @@
+id: REVIEW-78
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-098
+decision: approved
+comment: On nil input arrayEachConfig hits its `len(data)==0` guard (parser.go:1708) and returns before the loop; objectEachConfig's nextTokenConfig returns -1 on the empty slice, returning MalformedObjectError (parser.go:1928) with no callback; EachKey's `for i < ln` loop never enters when ln==0 and returns 0 (parser.go:667). None dereference the empty slice, so no panic and zero callbacks — exactly the requirement's safe-result clause. TestTraversalNilSafety recover-guards all three and passes.
+citations:
+    - parser.go:1708@arrayEachConfig
+    - parser.go:1928@objectEachConfig
+    - parser.go:667@EachKey

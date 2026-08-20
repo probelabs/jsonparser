@@ -1,0 +1,12 @@
+id: REVIEW-69
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-089
+decision: approved
+comment: Deeply nested input must return a correct result or a parse error without panicking or stack-overflowing. The token scan in searchKeysConfig is a single iterative loop over bytes (no per-JSON-level recursion); its only recursive call descends on keys[level+1:], so recursion depth is bounded by the caller-supplied path length, not by attacker-controlled document nesting. TestGetDeepNesting and the MCDC Row2 build a 100-deep object with a matching 100-element path and complete without panic. Conformant for the nesting depths the requirement targets.
+citations:
+    - parser.go:447@searchKeysConfig
+    - parser.go:460
+    - mcdc_spec_witnesses_test.go:3010@TestMCDC_SYS_REQ_089_Row2_InvariantViolation
+    - obligation_property_test.go:556@TestGetDeepNesting

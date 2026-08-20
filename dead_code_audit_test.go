@@ -243,6 +243,11 @@ func TestRemoval3_DecodeUnicodeEscape_HighSurrogateAlone(t *testing.T) {
 	// \uD800 is a lone high surrogate. Per RFC 8259/WHATWG a lone surrogate in
 	// a JSON string is malformed; match encoding/json by substituting U+FFFD
 	// and consuming only the 6 bytes of the escape (DEFECT-260727-SNGT).
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI-8 / SYS-REQ-014 reproduced: decodeUnicodeEscape panicked on lone high surrogate `\\uD800` (expected U+FFFD substitution, not a panic): %v", rec)
+		}
+	}()
 	r, n := decodeUnicodeEscape([]byte(`\uD800`))
 	if n != 6 {
 		t.Fatalf("expected consumed=6 for lone high surrogate (U+FFFD substitution), got n=%d", n)

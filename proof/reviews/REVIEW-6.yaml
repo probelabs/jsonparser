@@ -1,0 +1,11 @@
+id: REVIEW-6
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-006
+decision: approved
+comment: 'GetUnsafeString satisfies the zero-allocation raw-string contract exactly as AC-1 describes: it retrieves the addressed value through Get, propagates Get''s lookup-miss/error behavior unchanged (returning "" and the error on failure), and on success maps the value byte slice to a string via bytesToString using unsafe pointer aliasing rather than a copy — so no JSON unescaping is performed and no allocation occurs, which is precisely the documented speed/escaping tradeoff distinguishing it from GetString. No INTENTIONAL-DEFECT marker exists in this path and no open known issue is tagged to SYS-REQ-011/080/081/082.'
+citations:
+    - parser.go:2034@GetUnsafeString
+    - bytes_unsafe.go:1
+    - parser.go:1660@Get

@@ -1,0 +1,12 @@
+id: REVIEW-44
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-064
+decision: approved
+comment: 'The requirement is narrowly the empty-input partition: ParseInt on an empty slice must return MalformedValueError. parseInt (bytes.go) opens with `l := len(bytes); if l == 0 { return 0, false, false }`, i.e. ok=false and overflow=false, and ParseInt (parser.go:2169) maps that (!ok, !overflow) case to MalformedValueError. The MCDC and boundary tests (TestParseIntEmpty, TestMCDC_SYS_REQ_064_Row2/Row3) exercise exactly `ParseInt([]byte(""))` and assert the malformed error. The KI-2 (sign-only `-`) and KI-7 (19-digit overflow) defects touch other partitions of parseInt and neither reaches the l==0 guard, so the empty-input obligation itself is genuinely met.'
+citations:
+    - bytes.go:11@parseInt
+    - parser.go:2169@ParseInt
+    - deep_spec_test.go:545@TestParseIntEmpty
+    - mcdc_spec_witnesses_test.go:2905@TestMCDC_SYS_REQ_064_Row2_InvariantViolation

@@ -1,0 +1,12 @@
+id: REVIEW-23
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-041
+decision: approved
+comment: The invariant `!input_is_truncated_at_value_boundary | returns_error_for_truncated_value_boundary` requires Get to return an error/not-found without panicking on input truncated at a value boundary. Get (parser.go:1659) delegates to internalGetConfig, which returns MalformedJsonError when nextTokenConfig hits end-of-buffer (parser.go:1680-1682) and returns getType's error otherwise, all via bounded index scans, so `{"test":` yields MalformedJsonError and `{"test":1` best-effort matches the number with no panic. searchKeysConfig and stringEndConfig both return -1 rather than indexing past `len(data)` on truncation. TestTruncatedAtValueBoundary and the MCDC rows confirm no panic, and no KI is attached.
+citations:
+    - parser.go:1659@Get
+    - parser.go:1680@internalGetConfig
+    - parser.go:342@stringEndConfig
+    - deep_spec_test.go:10@TestTruncatedAtValueBoundary

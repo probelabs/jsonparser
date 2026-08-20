@@ -1,0 +1,11 @@
+id: REVIEW-11
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-005
+decision: approved
+comment: 'GetBoolean satisfies !addressed_value_is_boolean | !raw_boolean_token_is_well_formed | returns_getboolean_value: it rejects non-Boolean types via the t!=Boolean branch (NullValueError or ''Value is not a boolean'' error, no value emitted), grounding the !addressed_value_is_boolean guard, and otherwise returns ParseBoolean(v). Because Get only classifies a token as Boolean type when it starts with a valid boolean literal and the formula is guarded on raw_boolean_token_is_well_formed, the KI-11 ParseBoolean prefix-match defect does not violate this requirement''s obligation — a well-formed ''true''/''false'' token decodes correctly. TestGetBoolean and the MCDC witness rows confirm the value and the non-boolean error path.'
+citations:
+    - parser.go:2113@GetBoolean
+    - parser_test.go:1595@TestGetBoolean
+    - mcdc_spec_witnesses_test.go:116@TestMCDC_SYS_REQ_005_Row1_TriggerFalse

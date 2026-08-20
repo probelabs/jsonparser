@@ -1,0 +1,11 @@
+id: REVIEW-79
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-099
+decision: approved
+comment: 'The traversal helpers are iterative, not recursive: ArrayEach''s for-loop (parser.go:1767) advances a flat offset and calls Get on each element rather than recursing into nested containers, so 64+ levels of nesting consume no additional Go stack frames and cannot stack-overflow. ObjectEach and EachKey likewise loop over a single flat offset. TestTraversalDeepNesting builds depth-64 `[`/`{` prefixes and, under a recover() guard, confirms no panic for either helper.'
+citations:
+    - parser.go:1700@ArrayEach
+    - parser.go:1767@arrayEachConfig
+    - parser.go:1949@objectEachConfig

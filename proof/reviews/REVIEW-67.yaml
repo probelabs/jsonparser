@@ -1,0 +1,12 @@
+id: REVIEW-67
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-087
+decision: approved
+comment: The requirement forbids Get from mutating its input slice. internalGetConfig only reads data (searchKeysConfig scanning, getTypeConfig classification) and returns value as a sub-slice with capacity capped to its length (value[:len(value):len(value)]), so no write path into the caller's backing array exists. TestGetIdempotencyInputNotMutated snapshots the buffer and confirms bit-equality after multiple Get calls, and the MCDC witness Row2 does the same for a single call. Genuinely conformant — Get is a read-only operation.
+citations:
+    - parser.go:1671@internalGetConfig
+    - parser.go:1695
+    - obligation_property_test.go:231@TestGetIdempotencyInputNotMutated
+    - mcdc_spec_witnesses_test.go:2960@TestMCDC_SYS_REQ_087_Row2_InvariantViolation

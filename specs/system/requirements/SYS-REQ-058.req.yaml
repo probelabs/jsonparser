@@ -1,6 +1,6 @@
 id: SYS-REQ-058
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -35,15 +35,23 @@ verification:
     formalization_status: valid
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:c02a8e81107efa857fb4ac165e86d6290fd6b8205099f3b52405b0d844ede51d
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: agent:claude
     created_at: "2026-04-14T18:00:00Z"
-    last_modified_by: agent:claude
-    last_modified_at: "2026-04-14T18:00:00Z"
-verification_state: failing
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:14Z"
+verification_state: passing
 lifecycle:
     change_history:
         - date: "2026-04-14T18:00:00Z"
@@ -60,5 +68,15 @@ lifecycle:
           from: verification=passing
           to: verification=failing
           reason: auto-derived [passing→failing] signals=2; known_issue:KI-2=failing | tests_pass:test_status=passing
+          changed_by: human:buger
+        - date: "2026-08-20T13:16:11Z"
+          from: verification=failing
+          to: verification=not_started
+          reason: auto-derived [failing→not_started] signals=2; review_record:REVIEW-40=present | known_issue:KI-2=none
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:06Z"
+          from: verification=not_started
+          to: verification=passing
+          reason: auto-derived [not_started→passing] signals=3; review_record:REVIEW-40=present | known_issue:KI-2=none | tests_pass:test_status=passing
           changed_by: human:buger
 obligation_class: boundary

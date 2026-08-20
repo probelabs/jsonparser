@@ -1,0 +1,12 @@
+id: REVIEW-1
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-001
+decision: approved
+comment: 'The ''retrieve a nested value by key path without predeclaring structs'' contract is genuinely implemented: Get delegates to internalGetConfig, which resolves the path via searchKeysConfig (walking object keys / array indices) and then classifies the addressed token with getTypeConfig, returning the value slice, ValueType, and a KeyPathNotFoundError on a miss — exactly the correct/not-found/error trichotomy AC-1 asks for. The path-walk correctly skips insignificant whitespace via nextTokenConfig, but that skipper is where the tracked defect lives: KI-13 drops the tab byte from its whitespace set (nextTokenConfig only continues on '' '', ''\n'', ''\r''), so tab-formatted JSON such as {"a":\t123} is not skipped and the lookup fails. The requirement/spec is sound and the mainline lookup is correct; the tab-whitespace regression is a known tracked defect.'
+citations:
+    - parser.go:1660@Get
+    - parser.go:1671@internalGetConfig
+    - parser.go:447@searchKeysConfig
+    - parser.go:247

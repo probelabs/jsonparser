@@ -83,7 +83,7 @@ nominal_evidence_exemptions:
     - obligation_class: nested_mutation
       reason: 'SYS-REQ-009 models Set''s general mutation contract; the nested array-scaffolding success path is decomposed to SYS-REQ-110, which carries the SYS-REQ-110:nested_mutation:nominal witness. SYS-REQ-009''s own model has no nested-mutation valid-input success outcome to witness nominally.'
       reviewer: human:buger
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-13T17:16:45Z"
@@ -110,5 +110,15 @@ lifecycle:
           from: approved
           to: approved
           reason: 're-approve (prior: role="lead_engineer" reviewer="human:buger" at=2026-07-26T19:54:38Z comment="Re-approved after attaching malformed_input obligation (DEFECT-260726-MFPA / KI-3 hazard hardening). Tripwire TestSetArrayIndexUnderObjectMalformedJSON_KI3 locks the live failure mode; verification_state auto-derived failing reflects the open KI-3 on the cross-type partition.")'
+          changed_by: human:buger
+        - date: "2026-08-20T13:16:07Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=2; known_issue:KI-1=none | known_issue:KI-3=none
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:00Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=3; known_issue:KI-1=none | known_issue:KI-3=none | tests_pass:test_status=failing
           changed_by: human:buger
 obligation_class: nominal

@@ -1,0 +1,12 @@
+id: REVIEW-35
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-053
+decision: approved
+comment: 'For a mid-element truncation the loop takes one of two grounded error exits: config.Get on a truncated element (e.g. ''[1, {"a":'') returns a parse error that is returned at parser.go:1782-1784, and a truncation right after a comma (e.g. ''[1,2,'') makes nextTokenConfig return -1, yielding MalformedArrayError at parser.go:1789-1791. All array-index derefs (data[offset]) are reached only after nextTokenConfig has bounded offset, so there is no OOB panic. TestArrayEachTruncatedMidElement wraps the calls in a recover() and confirms no panic across truncated object/string/array elements.'
+citations:
+    - parser.go:1768@arrayEachConfig
+    - parser.go:1789@arrayEachConfig
+    - parser.go:1782@arrayEachConfig
+    - deep_spec_test.go:402@TestArrayEachTruncatedMidElement

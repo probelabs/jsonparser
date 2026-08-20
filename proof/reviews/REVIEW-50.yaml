@@ -1,0 +1,11 @@
+id: REVIEW-50
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-070
+decision: approved
+comment: 'The FRETish invariant !set_called_without_path | set_returns_error_without_path is met exactly: Set delegates to setConfig, whose very first guard `if len(keys) == 0 { return nil, KeyPathNotFoundError }` (parser.go:1404-1405) returns the documented KeyPathNotFoundError before any mutation is attempted. The description''s rationale (Set needs at least one path segment) matches this early return, and TestSetNoPath (deep_spec_test.go:379) asserts errors.Is(err, KeyPathNotFoundError) on `{"a":1}` with no keys. MCDC Row2 witness additionally exercises the trigger-true/action-true edge.'
+citations:
+    - parser.go:1397@Set
+    - parser.go:1404@setConfig
+    - deep_spec_test.go:379@TestSetNoPath

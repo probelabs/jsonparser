@@ -1,6 +1,6 @@
 id: SYS-REQ-039
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -36,14 +36,22 @@ verification:
     formalization_status: valid
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:53271999100d58280f639f33aa4dff45a86bf876cf46abf0ed24aab63c7dab3c
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: agent:codex
     created_at: "2026-04-14T15:45:00Z"
-    last_modified_by: human:cli
-    last_modified_at: "2026-07-26T14:54:18Z"
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:14Z"
 obligation_checklist:
     - boundary
 obligation_hazards:

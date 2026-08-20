@@ -1,0 +1,11 @@
+id: REVIEW-90
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:56Z"
+subject: SYS-REQ-012
+decision: approved
+comment: 'The requirement''s positive obligation (!raw_boolean_literal_is_valid | returns_parseboolean_value) is met for valid literals: ParseBoolean returns true for a ''true'' token and false for a ''false'' token via the bytes.HasPrefix cases, and default returns MalformedValueError. However ParseBoolean uses bytes.HasPrefix instead of bytes.Equal (parser.go:2137/2139), so invalid trailing-garbage tokens like ''trueish''/''falsehood'' are wrongly accepted as booleans — a real CWE-20 input-validation defect tracked by KI-11 (status: open, severity: high) with reproducer proof/evidence/KI-11-reproducer.yaml and TestDemoKI11_BooleanTrailingGarbage. Sound, implemented requirement with a genuine tracked defect in the invalid-input path; verification honestly failing.'
+citations:
+    - parser.go:2132@ParseBoolean
+    - parser.go:1124
+    - parser_test.go:2218@TestParseBoolean

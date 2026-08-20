@@ -1,0 +1,11 @@
+id: REVIEW-30
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-048
+decision: approved
+comment: deleteFoundConfig resolves the value via internalGetConfig and returns the original input unchanged on any parse error (parser.go:1284-1286). For input truncated at a value boundary (e.g. `{"test":1`), the trailing-comma cleanup computes tokEnd=tokenEnd(data[endOffset:]) and short-circuits with `if endOffset+tokEnd >= len(data) { return data, false }` (parser.go:1291), so no out-of-range index or slice is taken and the caller's bytes are returned as-is. The deep_spec truncation cases and MCDC Row5 witness confirm no panic and original-input return.
+citations:
+    - parser.go:1283@deleteFoundConfig
+    - parser.go:1291@deleteFoundConfig
+    - deep_spec_test.go:194@TestDeleteTruncatedAtValueBoundary

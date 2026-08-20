@@ -1,0 +1,13 @@
+id: REVIEW-72
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-092
+decision: approved
+comment: 'The escaped-Unicode decode core is correct: decodeUnicodeEscape handles BMP escapes and combines valid high+low surrogate pairs (\uD83D\uDE00 -> U+1F600), so the surrogate-pair and \u00e9 cases round-trip. However the requirement''s own verification test TestGetStringEncodingSafety FAILS on the solidus case: with KI-14 the ''/'' entry was dropped from the basic-escape switch in unescapeToUTF8Config, so GetString on {"s":"a\/b"} returns MalformedStringEscapeError instead of "a/b" (I ran the test and reproduced the failure at obligation_property_test.go:498). Additionally KI-9 (h2I upper bound widened to accept ''G'') lets \uGxxx decode to a bogus codepoint, violating the semantic-preservation clause. Both are real, tracked defects — verification honestly fails, but they are known-issue-linked and still approvable.'
+citations:
+    - escape.go:203@unescapeToUTF8Config
+    - escape.go:127@decodeUnicodeEscape
+    - escape.go:71@h2I
+    - obligation_property_test.go:476@TestGetStringEncodingSafety
+    - parser.go:2062

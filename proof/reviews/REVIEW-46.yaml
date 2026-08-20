@@ -1,0 +1,12 @@
+id: REVIEW-46
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-066
+decision: approved
+comment: The requirement is that ParseBoolean on an empty slice returns MalformedValueError. ParseBoolean (parser.go:2133) matches via bytes.HasPrefix against trueLiteral then falseLiteral, falling to a default that returns MalformedValueError; for an empty input both HasPrefix checks are false (an empty slice is not prefixed by "true"/"false"), so it hits the default malformed branch. TestParseBooleanEmpty and TestMCDC_SYS_REQ_066_Row2/Row3 assert exactly this. The KI-11 prefix-match defect (accepting "trueish") is present in this same function but lists only SYS-REQ-012/036/057, and it cannot affect the empty-input case, so this requirement's clause is genuinely conformant.
+citations:
+    - parser.go:2133@ParseBoolean
+    - parser.go:2141@ParseBoolean
+    - deep_spec_test.go:572@TestParseBooleanEmpty
+    - mcdc_spec_witnesses_test.go:2197@TestMCDC_SYS_REQ_066_Row2_InvariantViolation

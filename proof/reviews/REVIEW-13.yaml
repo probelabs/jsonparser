@@ -1,0 +1,12 @@
+id: REVIEW-13
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-008
+decision: approved
+comment: 'EachKey satisfies the multipath contract: it only fires cb(pi, v, dt, e) for a path that fully matches at the current level (len(p)==level, unused pathFlags, equalStr key match, sameTree ancestry), so missing paths emit no found-value callback; malformed input drives cb(-1,nil,Unknown,MalformedJsonError) and returns -1; and the i<ln loop completes the requested scan, returning early only once pathsMatched==len(paths). The empty-key-component panic (KI-1) is fixed here — the level<1 guard (line 708) and the len(p[level])==0 guard (line 775) prevent the out-of-range dereference, and KI-1 status is ''fixed''. TestEachKey and TestEachKeyEmptyKeyPathComponent confirm dispatch and the no-callback-on-empty-component behavior.'
+citations:
+    - parser.go:643@EachKey
+    - parser.go:708
+    - parser.go:775
+    - parser_test.go:1990@TestEachKey

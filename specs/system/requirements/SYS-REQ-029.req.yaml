@@ -71,7 +71,7 @@ nominal_evidence_exemptions:
     - obligation_class: non_array_root_no_callback
       reason: 'SYS-REQ-029 models ONLY a failure/rejection outcome (malformed_array_input_returns_error); there is no valid-input success outcome to witness nominally. The non_array_root_no_callback obligation is a negative contract: the callback must NOT fire on non-array input. The adversarial witness TestArrayEachNonArrayRootNoCallback_SYS029 (annotated SYS-REQ-029:non_array_root_no_callback:negative) is the canonical evidence shape — a nominal witness would require a valid-input happy-path that does not exist in this requirement''s scope.'
       reviewer: human:buger
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-14T15:45:00Z"
@@ -84,4 +84,9 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=1; tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:09Z"
+          from: verification=passing
+          to: verification=failing
+          reason: auto-derived [passing→failing] signals=1; known_issue:KI-12=failing
+          changed_by: human:buger
 obligation_class: malformed_input

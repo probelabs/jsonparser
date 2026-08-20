@@ -1,0 +1,10 @@
+id: REVIEW-55
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-075
+decision: approved
+comment: 'GetInt calls Get and returns the underlying error unchanged when Get fails: `v, t, _, e := Get(...); if e != nil { return 0, e }` (parser.go:2094-2098). Malformed input therefore always propagates as the Get error, satisfying !getint_input_is_malformed | returns_getint_error_for_malformed. The subsequent type and ParseInt steps are only reached on a successful Get, so no malformed case can bypass the error return.'
+citations:
+    - parser.go:2093@GetInt
+    - parser.go:2096@GetInt

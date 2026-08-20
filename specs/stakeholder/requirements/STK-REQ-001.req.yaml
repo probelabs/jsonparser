@@ -1,6 +1,6 @@
 id: STK-REQ-001
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -29,14 +29,22 @@ verification:
     formalization_status: none
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:12bdbc1b7e1cc4e7d870c0d0c99582da013ff76aeecf0929aa4d4d5e097682d6
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: human:cli
     created_at: "2026-04-13T16:22:41Z"
-    last_modified_by: human:cli
-    last_modified_at: "2026-07-26T12:53:53Z"
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:13Z"
 obligation_checklist:
     - boundary
     - determinism
@@ -173,7 +181,7 @@ obligation_hazards:
     - class: type_mismatch
       worst_case: Get on a JSON String where the caller expected Number returns quoted bytes; strconv.ParseInt on the quoted token silently returns 0 instead of an explicit type error.
       severity: medium
-verification_state: passing
+verification_state: failing
 stakeholder:
     persona: Go developers consuming dynamic JSON payloads
     story: As a Go developer consuming unpredictable JSON APIs, I want to retrieve nested values by key path without predeclaring structs so that I can process payloads directly from byte slices.
@@ -221,3 +229,13 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=1; tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:06Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=1; review_record:REVIEW-1=present
+          changed_by: human:buger
+        - date: "2026-08-20T13:39:58Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=2; review_record:REVIEW-1=present | tests_pass:test_status=failing
+          changed_by: human:buger

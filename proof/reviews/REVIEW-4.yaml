@@ -1,0 +1,12 @@
+id: REVIEW-4
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-004
+decision: approved
+comment: 'The traversal helpers genuinely implement one-scan iteration: arrayEachConfig resolves the addressed array (searchKeysConfig + a data[offset] != ''['' array-type guard), then loops invoking the callback once per element via config.Get and propagating callback/parse errors; objectEachConfig yields key/value/type tuples for each entry; and EachKey resolves multiple paths in a single pass. Two tracked defects live in the array path: the empty-array sentinel compares data[offset] == ''}'' instead of '']'' so a well-formed [] is not recognised as empty and falls through to MalformedArrayError instead of iterating zero times (KI-10, SYS-REQ-028), and the empty-input guard returns MalformedJsonError instead of the documented MalformedObjectError (KI-12, SYS-REQ-029). AC-1''s empty-array ''no callbacks'' clause is the one broken by a tracked issue; the object-iteration and multi-path AC-2/AC-3 behavior is correct.'
+citations:
+    - parser.go:1705@arrayEachConfig
+    - parser.go:1763
+    - parser.go:1708
+    - parser.go:1915@objectEachConfig

@@ -1,0 +1,12 @@
+id: REVIEW-74
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-094
+decision: approved
+comment: 'GetInt, GetFloat and GetBoolean (parser.go:2093/2073/2114) are pure functions: each resolves the value via Get then hands the bytes to ParseInt/ParseFloat/ParseBoolean with no shared mutable state, randomness, or I/O, so repeated calls on identical input necessarily return identical typed values and identical errors. ParseInt (parser.go:2169) is a deterministic byte scan, confirming the action clause. TestTypedGetterDeterminism exercises all three getters twice and passes, matching the !called_twice | identical_results invariant.'
+citations:
+    - parser.go:2093@GetInt
+    - parser.go:2073@GetFloat
+    - parser.go:2114@GetBoolean
+    - parser.go:2169@ParseInt

@@ -1,0 +1,13 @@
+id: REVIEW-7
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-007
+decision: approved
+comment: 'All four token-level Parse* helpers are present and shaped per AC-1..AC-4: ParseFloat wraps parseFloat and returns MalformedValueError on failure (sound), ParseString unescapes via Unescape and maps errors to MalformedValueError, ParseInt distinguishes overflow (OverflowIntegerError) from malformed tokens, and ParseBoolean maps true/false literals. Three tracked defects break the deterministic-error contract: ParseBoolean uses bytes.HasPrefix instead of bytes.Equal so ''trueish''/''falsehood'' parse successfully instead of erroring (KI-11), parseInt''s fast path (l-i < 20) lets a 19-digit int64-overflowing literal wrap silently instead of returning OverflowIntegerError (KI-7), and ParseString''s decoder shares the escape/Unicode defects — decodeSingleUnicodeEscape OOB panic on a truncated \u (KI-5) and the dropped \/ escape (KI-14). The spec is sound and the helpers are genuinely implemented; the malformed-input determinism is broken only via these tracked issues.'
+citations:
+    - parser.go:2137
+    - parser.go:2169@ParseInt
+    - bytes.go:27
+    - parser.go:2148@ParseString
+    - escape.go:88

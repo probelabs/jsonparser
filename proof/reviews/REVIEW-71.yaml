@@ -1,0 +1,12 @@
+id: REVIEW-71
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-091
+decision: approved
+comment: GetString(nil,...) must yield an empty string plus error/not-found without panicking. It first calls Get(nil,...), which returns a non-nil error (KeyPathNotFoundError/MalformedJsonError) on nil input, so GetString returns ("", e) at the early error branch and never reaches the escape/type logic. TestMCDC_SYS_REQ_091_Row2 asserts err!=nil and v==""; TestGetStringNilSafety adds a recover() guard that does not fire. Conformant.
+citations:
+    - parser.go:2047@GetString
+    - parser.go:2050
+    - mcdc_spec_witnesses_test.go:3070@TestMCDC_SYS_REQ_091_Row2_InvariantViolation
+    - obligation_property_test.go:297@TestGetStringNilSafety

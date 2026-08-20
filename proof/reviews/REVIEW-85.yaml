@@ -1,0 +1,11 @@
+id: REVIEW-85
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-105
+decision: approved
+comment: GetUnsafeString returns the raw value bytes via bytesToString and never invokes Unescape (parser.go:2034-2040), so the unescape-path demo defects (KI-14 solidus, KI-8/KI-15 surrogates) cannot corrupt or crash it. Get scans the enclosing JSON string structurally and is agnostic to interior UTF-8/BOM/ZWJ bytes, so TestGetUnsafeStringUnicodeEdgeCases (obligation_property_test.go:802) confirms no panic across BOM, raw multi-byte, emoji, and ZWJ values. The malformed-shape MCDC Row2 witness returns a clean "Key path not found" error rather than panicking, which the test explicitly accepts. All witness tests pass.
+citations:
+    - parser.go:2034@GetUnsafeString
+    - obligation_property_test.go:802@TestGetUnsafeStringUnicodeEdgeCases
+    - mcdc_spec_witnesses_test.go:3426@TestMCDC_SYS_REQ_105_Row2_InvariantViolation

@@ -1,0 +1,12 @@
+id: REVIEW-58
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-078
+decision: approved
+comment: 'The FRETish guarantee (!getint_input_is_empty | returns_getint_error_for_empty_input) is met by pure delegation: GetInt (parser.go:2092) calls Get and returns 0,e on any non-nil Get error before type inspection. On empty input Get -> internalGetConfig (parser.go:1671) hits searchKeysConfig, which returns -1 for a missing key and yields KeyPathNotFoundError, so the empty-input clause is satisfied. TestGetIntEmptyInput and MCDC rows 2/3 confirm err!=nil on `` while row1 confirms no spurious error on non-empty `{"a":1}`. Behavior matches Get on empty input as required.'
+citations:
+    - parser.go:2092@GetInt
+    - parser.go:1672@internalGetConfig
+    - deep_spec_test.go:770@TestGetIntEmptyInput
+    - mcdc_spec_witnesses_test.go:2575@TestMCDC_SYS_REQ_078_Row3_EmptyInputError

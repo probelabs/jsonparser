@@ -1,0 +1,12 @@
+id: REVIEW-37
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-055
+decision: approved
+comment: After each element the loop advances past whitespace with nextTokenConfig and then requires the next token to be ']' or ','; any other delimiter falls through to 'return offset, MalformedArrayError' (parser.go:1794-1800). For '[1; 2]' the ';' is neither ']' nor ',' -> MalformedArrayError, and for '[1 2]' the space is skipped and the following '2' likewise mismatches, giving MalformedArrayError as the requirement specifies. TestArrayEachMalformedDelimiter asserts a non-nil error for semicolon/space/colon delimiters.
+citations:
+    - parser.go:1794@arrayEachConfig
+    - parser.go:1798@arrayEachConfig
+    - parser.go:1799@arrayEachConfig
+    - deep_spec_test.go:430@TestArrayEachMalformedDelimiter

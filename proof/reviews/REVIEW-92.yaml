@@ -1,0 +1,11 @@
+id: REVIEW-92
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:56Z"
+subject: SYS-REQ-036
+decision: approved
+comment: The FRETish invariant `raw_boolean_literal_is_valid | returns_parseboolean_error` requires ParseBoolean to reject any token that is not exactly `true`/`false`, and the default arm at parser.go:2141 correctly returns MalformedValueError. However the two match arms use `bytes.HasPrefix(b, trueLiteral)` / `bytes.HasPrefix(b, falseLiteral)` (parser.go:2137,2139) instead of `bytes.Equal`, so trailing-garbage tokens like `trueish`/`falsehood` are invalid literals yet return (value, nil) with no error, violating the invariant. This is the intentional prefix-match defect tracked by KI-11 (CWE-20), whose reproducer TestDemoKI11 and the MCDC row test both exercise it. Sound wrapper, real tracked defect — approvable.
+citations:
+    - parser.go:2137@ParseBoolean
+    - parser.go:2139@ParseBoolean
+    - parser.go:2141@ParseBoolean

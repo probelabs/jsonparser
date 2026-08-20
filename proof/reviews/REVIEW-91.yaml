@@ -1,0 +1,12 @@
+id: REVIEW-91
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:56Z"
+subject: SYS-REQ-028
+decision: approved
+comment: The formula says a well-formed empty array must produce zero callbacks. The empty-array fast path in arrayEachConfig (parser.go:1763) compares the first significant byte against '}' instead of ']', so a valid `[]` fails the sentinel, falls into the element loop against the closing bracket, and returns MalformedArrayError rather than iterating zero times. This is the intentional demo defect tracked by KI-10 (proof/known-issues/KI-10.yaml, status:open, remediation = restore ']'), with a passing reproducer manifest (proof/evidence/KI-10-reproducer.yaml) and TestDemoKI10_EmptyArrayEach. The requirement's own witnesses (TestArrayEachEmpty, TestMCDC_SYS_REQ_028_Row3, TestObligation_SYS_REQ_028) assert zero callbacks on `[]`, so verification honestly fails against the mutated sentinel; the contract and design are sound, the defect is tracked, so it stays approvable.
+citations:
+    - parser.go:1763
+    - parser.go:1698@ArrayEach
+    - parser_test.go:1715@TestArrayEachEmpty
+    - obligation_evidence_test.go:286@TestObligation_SYS_REQ_028

@@ -1,0 +1,12 @@
+id: REVIEW-64
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-084
+decision: approved
+comment: 'ObjectEach (parser.go:1908) delegates to objectEachConfig, which returns an error on any mid-structure truncation rather than panicking: an unclosed nested value makes config.Get fail and that error is returned (parser.go:1998), and a missing delimiter/closing brace makes nextTokenConfig return -1 -> MalformedArrayError (parser.go:2008). Tracing `{"a":{"b":1` -> Get on the nested value hits blockEnd==-1 -> MalformedObjectError; `{"a":1,"b":2` and `{"a":"hello` similarly resolve to errors with no OOB indexing. TestObjectEachTruncatedMidStructure (recover-guarded) and MCDC rows 2/3 confirm error/no-panic behavior.'
+citations:
+    - parser.go:1910@ObjectEach
+    - parser.go:1998@objectEachConfig
+    - parser.go:2008@objectEachConfig
+    - deep_spec_test.go:873@TestObjectEachTruncatedMidStructure

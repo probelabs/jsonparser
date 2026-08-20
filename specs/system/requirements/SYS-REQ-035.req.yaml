@@ -1,6 +1,6 @@
 id: SYS-REQ-035
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -38,21 +38,29 @@ verification:
     formalization_status: valid
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:38139609702fe234f2e52b0941c4b5903c3367770b0f1d08cb8c106cb23e1ec4
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: agent:codex
     created_at: "2026-04-14T15:45:00Z"
-    last_modified_by: human:cli
-    last_modified_at: "2026-07-26T14:54:17Z"
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:14Z"
 obligation_checklist:
     - malformed_input
 obligation_hazards:
     - class: malformed_input
       worst_case: Delete on adversarial input like ,{"test":1{}} drives findTokenStart/tokenEnd to stale offsets; the unguarded data[prevTok] dereference (parser.go:907) panics with index-out-of-range — the OSS-Fuzz witness shape.
       severity: critical
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-14T15:45:00Z"
@@ -65,4 +73,14 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=2; known_issue:KI-1=none | tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:09Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=2; review_record:REVIEW-21=present | known_issue:KI-1=none
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:03Z"
+          from: verification=not_started
+          to: verification=failing
+          reason: auto-derived [not_started→failing] signals=3; review_record:REVIEW-21=present | known_issue:KI-1=none | tests_pass:test_status=failing
+          changed_by: human:buger
 obligation_class: malformed_input

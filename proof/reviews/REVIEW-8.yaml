@@ -1,0 +1,12 @@
+id: REVIEW-8
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: SYS-REQ-002
+decision: approved
+comment: "The formula !addressed_value_is_string | !raw_string_token_is_well_formed | returns_getstring_decoded_value is met by GetString: it addresses the value via Get and rejects non-String types (returns NullValueError / 'Value is not a string' error, never a decoded value), grounding the !addressed_value_is_string guard. For a well-formed String token it returns the decoded value — raw bytes directly when no backslash is present (bytes.IndexByte(v,'\\\\')==-1) and otherwise ParseString(v), which Unescapes; a malformed escape makes ParseString return MalformedValueError, satisfying the !well_formed disjunct. TestGetString and the round-trip witness TestSetStringRoundTrip ('你好 \U0001F30D') confirm correct decoding."
+citations:
+    - parser.go:2044@GetString
+    - parser.go:2148@ParseString
+    - parser_test.go:1520@TestGetString
+    - escape_test.go:456@TestSetStringRoundTrip

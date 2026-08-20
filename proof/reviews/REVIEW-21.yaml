@@ -1,0 +1,13 @@
+id: REVIEW-21
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-035
+decision: approved
+comment: The formula requires that on malformed/truncated/unusable input Delete returns the original payload unchanged AND does not panic. deleteFoundConfig returns `data, false` on every parse failure path — internalGetConfig error (parser.go:1270,1284,1320) and the truncation sentinel `endOffset+tokEnd >= len(data)` (parser.go:1291,1328) — and the trailing-comma cleanup is fronted by prevTok>-1 / bounds guards (parser.go:1291-1317,1370) so no data[-1] deref occurs. TestMCDC_SYS_REQ_034_Row4 (`{"a":`) and TestDeleteEmptyKeyPathComponent assert unchanged output with runNoPanic, and the KI-1 fix (status:fixed) added the seven len()>0 guards that keep empty-key components panic-free. The oracle harness wraps Delete in a recover() and saw zero panics over 10000 inputs.
+citations:
+    - parser.go:1291
+    - parser.go:1370
+    - empty_key_path_test.go:211@TestDeleteEmptyKeyPathComponent
+    - mcdc_spec_witnesses_test.go:1228@TestMCDC_SYS_REQ_034_Row4_UnusableInput
+    - reference_oracle_test.go:704@TestOracleDeleteCorrectness

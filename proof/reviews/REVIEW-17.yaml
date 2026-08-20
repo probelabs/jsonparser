@@ -1,0 +1,12 @@
+id: REVIEW-17
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-031
+decision: approved
+comment: 'The formula requires that malformed object input to ObjectEach returns an error. objectEachConfig fails loud at every stage: a missing/space-only or non-''{'' opening returns MalformedObjectError (parser.go:1929-1933), a bad key/colon/value returns MalformedJsonError or MalformedObjectError, and Step 4''s nextTokenConfig sentinel (-1) after the last value returns an error for truncated input like `{"a":1`. The witnesses confirm this: TestMCDC_SYS_REQ_031_Row1 asserts a non-nil error on `{"a":1` while Row2 confirms a well-formed `{"a":1}` does not error, isolating the malformed->error condition.'
+citations:
+    - parser.go:1915@objectEachConfig
+    - parser.go:1929
+    - mcdc_spec_witnesses_test.go:1080@TestMCDC_SYS_REQ_031_Row1_InvariantViolation
+    - mcdc_spec_witnesses_test.go:1091@TestMCDC_SYS_REQ_031_Row2_WellFormed

@@ -1,0 +1,12 @@
+id: REVIEW-15
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-013
+decision: approved
+comment: The formula requires that a well-formed float token yield the corresponding float64 (!raw_float_token_is_well_formed | returns_parsefloat_value). ParseFloat (parser.go:2159) delegates to parseFloat, which in bytes_safe.go:16 is exactly strconv.ParseFloat(string(*b), 64), so any token strconv accepts returns its value and a malformed token maps to MalformedValueError. The reference oracle (reference_oracle_test.go:820 @TestOracleParseFloat) drives 10000 FormatFloat->ParseFloat round-trips plus a quick.Check byte-slice campaign against strconv, asserting exact equality, which directly witnesses the returns-value clause. MC/DC witnesses in mcdc_spec_witnesses_test.go cover the trigger-false (invalid token -> error, no value) and value-emitted rows.
+citations:
+    - parser.go:2159@ParseFloat
+    - bytes_safe.go:16@parseFloat
+    - reference_oracle_test.go:820@TestOracleParseFloat
+    - mcdc_spec_witnesses_test.go:280@TestMCDC_SYS_REQ_013_Row1_TriggerFalse

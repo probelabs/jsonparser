@@ -1,0 +1,12 @@
+id: REVIEW-59
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-079
+decision: approved
+comment: 'The guarantee that a partial boolean literal ("tru"/"fals") yields an error holds because classification happens in getTypeConfig (parser.go:1624-1626), whose ''t''/''f'' case requires bytes.Equal(value, trueLiteral)||bytes.Equal(value, falseLiteral) — a truncated token like `tru` fails both exact comparisons and returns UnknownValueTypeError, which GetBoolean (parser.go:2113) propagates via its e!=nil guard before ParseBoolean is ever reached. Notably the KI-11 prefix-match defect in ParseBoolean cannot affect this requirement: ParseBoolean runs only after getType has already confirmed the token is exactly the literal, so partial literals never reach it. MCDC rows and TestGetBooleanPartialLiteral confirm errors on non-boolean/partial values and a clean true on `{"a":true}`.'
+citations:
+    - parser.go:2113@GetBoolean
+    - parser.go:1624@getTypeConfig
+    - parser.go:2137@ParseBoolean
+    - deep_spec_test.go:783@TestGetBooleanPartialLiteral

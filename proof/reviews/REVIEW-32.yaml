@@ -1,0 +1,11 @@
+id: REVIEW-32
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-050
+decision: approved
+comment: For an array-element path (last key `[N]`) the array branch calls internalGetConfig with the full key list and returns the original input on error (parser.go:1320-1323); a truncated array such as `{"a":[1,2` yields MalformedArrayError from blockEnd, so the untouched payload is returned. Even when a truncated element resolves at end-of-input, the trailing-comma cleanup guards with `endOffset+tokEnd >= len(data)` before any deref (parser.go:1328), again returning data unchanged. No unchecked index is taken, so no panic. MCDC Row5 truncated-array witness passes.
+citations:
+    - parser.go:1320@deleteFoundConfig
+    - parser.go:1325@deleteFoundConfig
+    - parser.go:1328@deleteFoundConfig

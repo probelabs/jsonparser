@@ -67,7 +67,7 @@ obligation_hazards:
     - class: determinism
       worst_case: Get on identical well-formed input returns a different (value,start,end) triple across calls; an offset-math layer downstream computes value[end-start:] past the buffer and slices out of range, panicking the caller.
       severity: medium
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-13T16:25:24Z"
@@ -94,5 +94,10 @@ lifecycle:
           from: approved
           to: approved
           reason: 're-approve (prior: role="lead_engineer" reviewer="human:buger" at=2026-07-26T14:36:40Z comment="Re-approved after obligation/verification-state alignment under L3 strict posture")'
+          changed_by: human:buger
+        - date: "2026-08-20T13:16:06Z"
+          from: verification=passing
+          to: verification=failing
+          reason: auto-derived [passing→failing] signals=2; known_issue:KI-13=failing | tests_pass:test_status=passing
           changed_by: human:buger
 obligation_class: nominal

@@ -1,0 +1,11 @@
+id: REVIEW-39
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-057
+decision: approved
+comment: 'The narrow formula clause holds for genuinely partial literals: ''tru''/''fals''/''t''/''f'' are shorter than the target literals so bytes.HasPrefix(b, trueLiteral)/HasPrefix(b, falseLiteral) are both false and ParseBoolean falls to the default returning MalformedValueError (parser.go:2132-2141), which TestParseBooleanPartialLiterals verifies. However the same function uses HasPrefix rather than bytes.Equal, so trailing-garbage tokens like ''trueish''/''falsehood'' are wrongly accepted as booleans — an open CWE-20 defect tracked by KI-11 and explicitly linked to SYS-REQ-057. Sound intent and implemented, but the exact-match contract for this validation function is honestly not met.'
+citations:
+    - parser.go:2132@ParseBoolean
+    - proof/known-issues/KI-11.yaml:1
+    - deep_spec_test.go:486@TestParseBooleanPartialLiterals

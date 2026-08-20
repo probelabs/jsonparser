@@ -1,0 +1,11 @@
+id: REVIEW-57
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-077
+decision: approved
+comment: 'GetInt inspects the ValueType from Get and returns a type-mismatch error whenever it is not Number: NullValueError for null and `fmt.Errorf("Value is not a number: %s", ...)` for strings, booleans, objects and arrays (parser.go:2100-2104). This satisfies !getint_addressed_value_is_not_number | returns_getint_type_mismatch_error across every non-number type the description lists, and ParseInt (parser.go:2107) is only reached once t == Number. The type guard is independent of the KI-7 overflow defect, which lives solely in the numeric fast path.'
+citations:
+    - parser.go:2100@GetInt
+    - parser.go:2104@GetInt
+    - parser.go:2107@GetInt

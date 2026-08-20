@@ -75,16 +75,23 @@ var multiUnicodeEscapeTests = append([]escapedUnicodeRuneTest{
 // MCDC SYS-REQ-014: N/A
 func TestDecodeSingleUnicodeEscape(t *testing.T) {
 	for _, test := range singleUnicodeEscapeTests {
-		r, ok := decodeSingleUnicodeEscape([]byte(test.in))
-		isErr := !ok
+		func() {
+			defer func() {
+				if rec := recover(); rec != nil {
+					t.Errorf("KI-8 / SYS-REQ-014 reproduced: decodeSingleUnicodeEscape(%s) panicked (expected ok=false for a malformed/short escape, not a panic): %v", test.in, rec)
+				}
+			}()
+			r, ok := decodeSingleUnicodeEscape([]byte(test.in))
+			isErr := !ok
 
-		if isErr != test.isErr {
-			t.Errorf("decodeSingleUnicodeEscape(%s) returned isErr mismatch: expected %t, obtained %t", test.in, test.isErr, isErr)
-		} else if isErr {
-			continue
-		} else if r != test.out {
-			t.Errorf("decodeSingleUnicodeEscape(%s) returned rune mismatch: expected %x (%c), obtained %x (%c)", test.in, test.out, test.out, r, r)
-		}
+			if isErr != test.isErr {
+				t.Errorf("decodeSingleUnicodeEscape(%s) returned isErr mismatch: expected %t, obtained %t", test.in, test.isErr, isErr)
+			} else if isErr {
+				return
+			} else if r != test.out {
+				t.Errorf("decodeSingleUnicodeEscape(%s) returned rune mismatch: expected %x (%c), obtained %x (%c)", test.in, test.out, test.out, r, r)
+			}
+		}()
 	}
 }
 
@@ -92,18 +99,25 @@ func TestDecodeSingleUnicodeEscape(t *testing.T) {
 // MCDC SYS-REQ-014: N/A
 func TestDecodeUnicodeEscape(t *testing.T) {
 	for _, test := range multiUnicodeEscapeTests {
-		r, len := decodeUnicodeEscape([]byte(test.in))
-		isErr := (len == -1)
+		func() {
+			defer func() {
+				if rec := recover(); rec != nil {
+					t.Errorf("KI-8 / SYS-REQ-014 reproduced: decodeUnicodeEscape(%s) panicked (expected a rune/len result, not a panic): %v", test.in, rec)
+				}
+			}()
+			r, len := decodeUnicodeEscape([]byte(test.in))
+			isErr := (len == -1)
 
-		if isErr != test.isErr {
-			t.Errorf("decodeUnicodeEscape(%s) returned isErr mismatch: expected %t, obtained %t", test.in, test.isErr, isErr)
-		} else if isErr {
-			continue
-		} else if len != test.len {
-			t.Errorf("decodeUnicodeEscape(%s) returned length mismatch: expected %d, obtained %d", test.in, test.len, len)
-		} else if r != test.out {
-			t.Errorf("decodeUnicodeEscape(%s) returned rune mismatch: expected %x (%c), obtained %x (%c)", test.in, test.out, test.out, r, r)
-		}
+			if isErr != test.isErr {
+				t.Errorf("decodeUnicodeEscape(%s) returned isErr mismatch: expected %t, obtained %t", test.in, test.isErr, isErr)
+			} else if isErr {
+				return
+			} else if len != test.len {
+				t.Errorf("decodeUnicodeEscape(%s) returned length mismatch: expected %d, obtained %d", test.in, test.len, len)
+			} else if r != test.out {
+				t.Errorf("decodeUnicodeEscape(%s) returned rune mismatch: expected %x (%c), obtained %x (%c)", test.in, test.out, test.out, r, r)
+			}
+		}()
 	}
 }
 
@@ -194,7 +208,21 @@ func TestUnescape(t *testing.T) {
 			in := []byte(test.in)
 			buf := buftest.buf
 
-			out, err := Unescape(in, buf)
+			var out []byte
+			var err error
+			panicked := false
+			func() {
+				defer func() {
+					if rec := recover(); rec != nil {
+						panicked = true
+						t.Errorf("KI-8 / SYS-REQ-014 reproduced: Unescape(`%s`, bufsize=%d) panicked (expected a typed error, not a panic): %v", test.in, cap(buf), rec)
+					}
+				}()
+				out, err = Unescape(in, buf)
+			}()
+			if panicked {
+				break
+			}
 			isErr := (err != nil)
 			isAlloc := !isSameMemory(out, in) && !isSameMemory(out, buf)
 
@@ -232,6 +260,11 @@ const replacementChar = "\uFFFD"
 // Verifies: SYS-REQ-014 [boundary] — lone high surrogate → U+FFFD, no
 // following bytes consumed.
 func TestUnescapeLoneHighSurrogate(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI-8 / SYS-REQ-014 reproduced: Unescape(`\\uDB29`) panicked on lone high surrogate (expected U+FFFD substitution, not a panic): %v", rec)
+		}
+	}()
 	out, err := Unescape([]byte(`\uDB29`), nil)
 	if err != nil {
 		t.Fatalf("Unescape(`\\uDB29`) returned error %v; expected U+FFFD substitution", err)
@@ -313,26 +346,33 @@ func TestParseStringLoneSurrogateMatchesEncodingJSON(t *testing.T) {
 		`\u0000\uD800\u0000`,
 	}
 	for _, esc := range corpus {
-		// Reference oracle: encoding/json unescapes the quoted string.
-		var want string
-		jsonInput := `"` + esc + `"`
-		if err := json.Unmarshal([]byte(jsonInput), &want); err != nil {
-			// encoding/json rejects malformed escapes (e.g. truncated "\u"). The
-			// corpus above is chosen to all be accepted; if one is rejected we
-			// want to know rather than silently skip.
-			t.Errorf("encoding/json rejected corpus input %q: %v", jsonInput, err)
-			continue
-		}
+		func() {
+			defer func() {
+				if rec := recover(); rec != nil {
+					t.Errorf("KI-8 / SYS-REQ-014 reproduced: ParseString(%q) panicked on a lone-surrogate input (expected encoding/json parity, not a panic): %v", esc, rec)
+				}
+			}()
+			// Reference oracle: encoding/json unescapes the quoted string.
+			var want string
+			jsonInput := `"` + esc + `"`
+			if err := json.Unmarshal([]byte(jsonInput), &want); err != nil {
+				// encoding/json rejects malformed escapes (e.g. truncated "\u"). The
+				// corpus above is chosen to all be accepted; if one is rejected we
+				// want to know rather than silently skip.
+				t.Errorf("encoding/json rejected corpus input %q: %v", jsonInput, err)
+				return
+			}
 
-		got, err := ParseString([]byte(esc))
-		if err != nil {
-			t.Errorf("ParseString(%q) returned error %v; encoding/json accepted it as %q", esc, err, want)
-			continue
-		}
-		if got != want {
-			t.Errorf("ParseString(%q) divergence:\n  got  = %q (% x)\n  want = %q (% x)",
-				esc, got, []byte(got), want, []byte(want))
-		}
+			got, err := ParseString([]byte(esc))
+			if err != nil {
+				t.Errorf("ParseString(%q) returned error %v; encoding/json accepted it as %q", esc, err, want)
+				return
+			}
+			if got != want {
+				t.Errorf("ParseString(%q) divergence:\n  got  = %q (% x)\n  want = %q (% x)",
+					esc, got, []byte(got), want, []byte(want))
+			}
+		}()
 	}
 }
 

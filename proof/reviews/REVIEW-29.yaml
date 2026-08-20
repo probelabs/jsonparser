@@ -1,0 +1,12 @@
+id: REVIEW-29
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-047
+decision: approved
+comment: For an array-index segment, searchKeysConfig parses the index with strconv.Atoi (parser.go:577); a negative literal like [-1] parses to aIdx=-1 with no error. It then walks the array via arrayEachConfig comparing the running curIdx (which starts at 0 and only increments) against aIdx (parser.go:586), so a negative target is never matched and valueFound stays nil, causing the return of the not-found sentinel -1 (parser.go:597-598). Get therefore surfaces KeyPathNotFoundError, matching the FRETish obligation; the deep_spec and MCDC Row3 negative-index witnesses confirm this.
+citations:
+    - parser.go:577@searchKeysConfig
+    - parser.go:586@searchKeysConfig
+    - parser.go:598@searchKeysConfig
+    - deep_spec_test.go:180@TestNegativeArrayIndex

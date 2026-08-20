@@ -1,0 +1,13 @@
+id: REVIEW-27
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-045
+decision: approved
+comment: 'stringEnd/stringEndConfig (parser.go:295) return -1 when no closing quote is found. Every caller checks the sentinel before proceeding: searchKeysConfig breaks/returns -1 (parser.go:128, parser.go:493), skipKeys and other key scans return -1 (parser.go:420, parser.go:673), internalGet raises MalformedStringError (parser.go:1590), the object-key path returns MalformedJsonError (parser.go:1971), and the container-length scanner returns malformedErr (parser.go:2299,2395). No caller advances an offset with an unchecked -1. The MCDC Row3 sentinel-handled witness passes.'
+citations:
+    - parser.go:295@stringEnd
+    - parser.go:128@searchKeysConfig
+    - parser.go:1590@internalGetConfig
+    - parser.go:1971
+    - parser.go:2299

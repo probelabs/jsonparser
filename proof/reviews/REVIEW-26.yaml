@@ -1,0 +1,12 @@
+id: REVIEW-26
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-044
+decision: approved
+comment: 'tokenEnd (parser.go:55) returns len(data) as the no-delimiter sentinel and never a negative value, matching the four in-range lemmas. Every caller treats the sentinel safely: the Delete cleanup paths guard with `if endOffset+tokEnd >= len(data) { return data, false }` before any deref (parser.go:1291, parser.go:1328) and gate each byte access on `len(data) > idx`, while the internalGet scalar path uses endOffset+end only as a slice upper bound (parser.go:1621), which cannot exceed len(data). The inline comments about a ''-1 sentinel'' are factually wrong (tokenEnd never returns -1) but the actual >=len(data) guards are the correct check, so conformance holds.'
+citations:
+    - parser.go:55@tokenEnd
+    - parser.go:1291
+    - parser.go:1328
+    - parser.go:1621@internalGetConfig

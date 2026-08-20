@@ -1,6 +1,6 @@
 id: SYS-REQ-034
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -37,14 +37,22 @@ verification:
     formalization_status: valid
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:7ea0931ef554487390c34409c360561b45011de19f1ae29c361c9cb0f8b010f8
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: agent:codex
     created_at: "2026-04-14T15:45:00Z"
-    last_modified_by: human:cli
-    last_modified_at: "2026-07-26T14:54:17Z"
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:14Z"
 obligation_checklist:
     - edge_case
     - missing_path
@@ -68,4 +76,14 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=2; known_issue:KI-1=none | tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:09Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=2; review_record:REVIEW-20=present | known_issue:KI-1=none
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:03Z"
+          from: verification=not_started
+          to: verification=passing
+          reason: auto-derived [not_started→passing] signals=3; review_record:REVIEW-20=present | known_issue:KI-1=none | tests_pass:test_status=passing
+          changed_by: human:buger
 obligation_class: missing_path

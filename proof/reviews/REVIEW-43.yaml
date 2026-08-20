@@ -1,0 +1,12 @@
+id: REVIEW-43
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-063
+decision: approved
+comment: 'The requirement demands that a string ending in a lone backslash return MalformedValueError, and the control flow is correctly shaped: ParseString (parser.go:2148) maps any Unescape error to MalformedValueError, and unescapeToUTF8Config is supposed to reject an escape with fewer than two bytes before reading the escape byte at in[1]. KI-6 broke this at escape.go:194 by weakening the guard from `len(in) < 2` to `len(in) < 1`, so a single-byte `\` input passes and the switch at escape.go:200 reads in[1] one byte past the slice end, producing an index-out-of-range panic instead of a clean malformed error. I inspected the mutated guard and the immediately-following `switch e := in[1]` that indexes past the buffer, confirming the OOB read is real and reachable through the public API. The defect is tracked as open KI-6, so the requirement remains approvable while its verification honestly fails.'
+citations:
+    - parser.go:2148@ParseString
+    - escape.go:194@unescapeToUTF8Config
+    - escape.go:200@unescapeToUTF8Config
+    - escape.go:325@unescapeConfig

@@ -1,0 +1,12 @@
+id: REVIEW-88
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-108
+decision: approved
+comment: ParseString (parser.go:2148) unescapes via unescapeToUTF8Config, which correctly decodes \n \t \\ \" \b \f \r and \uXXXX (those subtests pass in TestParseStringEncodingSafetyRoundtrip, obligation_property_test.go:507). But the requirement explicitly enumerates the escaped solidus (\/) as a standard escape, and unescapeToUTF8Config has dropped '/' from its accepted case list (escape.go:203), so ParseString([]byte(`a\/b`)) returns MalformedValueError and the 'solidus' subtest fails — I confirmed this by running the test (obligation_property_test.go:529). This is a real RFC-8259 violation tracked by KI-14 and thus still approvable, but note KI-14 lists only SYS-REQ-014/038 in affected_requirements and should also cite SYS-REQ-108.
+citations:
+    - parser.go:2148@ParseString
+    - escape.go:203@unescapeToUTF8Config
+    - obligation_property_test.go:507@TestParseStringEncodingSafetyRoundtrip
+    - proof/known-issues/KI-14.yaml:1

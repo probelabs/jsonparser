@@ -1,0 +1,12 @@
+id: REVIEW-62
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-082
+decision: approved
+comment: GetUnsafeString (parser.go:2032) cannot panic on truncated input because it only reads Get's return values and forwards the error; the risky indexing lives in getTypeConfig/nextToken, which return MalformedJsonError/MalformedStringError rather than reading out of bounds. For the canonical value-boundary truncation `{"a":` Get finds no token after the colon (nextTokenConfig -> -1 -> MalformedJsonError), and MCDC rows 2/3 assert err!=nil for this input; TestGetUnsafeStringTruncatedValue additionally wraps `{"a":1` in a recover() to prove no panic. The requirement's propagate-without-panic contract is met.
+citations:
+    - parser.go:2032@GetUnsafeString
+    - parser.go:1679@internalGetConfig
+    - deep_spec_test.go:821@TestGetUnsafeStringTruncatedValue
+    - mcdc_spec_witnesses_test.go:2693@TestMCDC_SYS_REQ_082_Row3_TruncatedValueError

@@ -1,0 +1,13 @@
+id: REVIEW-68
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-088
+decision: approved
+comment: For nil input Get must return a safe not-found/error result without panicking. With keys, searchKeysConfig(nil,...) returns -1 so internalGetConfig returns (nil, NotExist, -1, KeyPathNotFoundError); with no keys, nextTokenConfig(nil) returns -1 and it returns MalformedJsonError — neither path dereferences the nil slice. TestMCDC_SYS_REQ_088_Row2 asserts exactly value==nil, dataType==NotExist, offset==-1, err!=nil, and TestGetNilSafety wraps the call in a recover() guard that never fires. Sound.
+citations:
+    - parser.go:1671@internalGetConfig
+    - parser.go:1673
+    - parser.go:1681
+    - mcdc_spec_witnesses_test.go:2985@TestMCDC_SYS_REQ_088_Row2_InvariantViolation
+    - obligation_property_test.go:278@TestGetNilSafety

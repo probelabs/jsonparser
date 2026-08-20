@@ -1,0 +1,11 @@
+id: REVIEW-95
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:56Z"
+subject: SYS-REQ-040
+decision: approved
+comment: The invariant `raw_int_token_is_well_formed | raw_int_token_overflows_int64 | returns_parseint_malformed_error` requires a non-overflow malformed token to yield MalformedValueError, and ParseInt (parser.go:2168) returns MalformedValueError exactly when parseInt reports !ok && !overflow. parseInt rejects any non-digit byte via `if d > 9 { return 0, false, false }` (bytes.go:29-31), and the former sign-only false-success (ParseInt("-")=0,nil) is now closed by the guard `if i == l { return 0, false, false }` at bytes.go:20-22, so `-` and `notanint` both error. The KI-7 fast-path overflow defect only affects the overflow disjunct (SYS-REQ-039), which this formula explicitly permits, so it does not break this requirement; KI-2 is marked fixed with regression test TestParseIntSignOnly_KI2. No open KI is attached here.
+citations:
+    - parser.go:2168@ParseInt
+    - bytes.go:20@parseInt
+    - bytes.go:29@parseInt

@@ -1,0 +1,12 @@
+id: REVIEW-18
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-032
+decision: approved
+comment: The formula requires that when a callback returns an error on a well-formed object, ObjectEach returns that same error. In objectEachConfig the value branch at parser.go:2000 invokes the callback and immediately `return err` when it is non-nil, propagating the caller's error verbatim without wrapping. TestObjectEachNestedPathAndCallbackError and TestMCDC_SYS_REQ_032_Row3 assert errors.Is(err, sentinel) for `{"a":1}`, proving the exact-error propagation, while Row1 shows a malformed input returns the parse error (not the callback sentinel), correctly gating on well-formedness.
+citations:
+    - parser.go:2000
+    - parser.go:1908@ObjectEach
+    - parser_test.go:1926@TestObjectEachNestedPathAndCallbackError
+    - mcdc_spec_witnesses_test.go:1141@TestMCDC_SYS_REQ_032_Row3_InvariantViolation

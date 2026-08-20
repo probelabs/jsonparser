@@ -1,0 +1,12 @@
+id: REVIEW-49
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-069
+decision: approved
+comment: 'The requirement is that Set with a multi-level path whose intermediate levels exist but leaf does not correctly creates the missing nested structure and inserts at the right location. setConfig (parser.go:1402) handles the KeyPathNotFoundError case by walking existing subpaths via internalGetConfig to find the deepest existing prefix, then builds and splices the new component at that offset. I ran TestSetNestedMutation, TestObligation_SYS_REQ_069, and TestMCDC_SYS_REQ_069_Row2/Row3: `Set({"a":{"b":1}}, "a","c")` creates c inside a and a round-trip Get returns the inserted value, and setting an existing leaf `a/b` overwrites it correctly. All pass with correct output. No known issue is attached to this requirement.'
+citations:
+    - parser.go:1402@setConfig
+    - parser.go:1414@setConfig
+    - deep_spec_test.go:361@TestSetNestedMutation
+    - obligation_evidence_test.go:487@TestObligation_SYS_REQ_069

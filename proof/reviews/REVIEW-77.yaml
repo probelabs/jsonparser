@@ -1,0 +1,11 @@
+id: REVIEW-77
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-097
+decision: approved
+comment: ArrayEach (parser.go:1700), ObjectEach (parser.go:1910) and EachKey (parser.go:643) are single-pass iterative scanners over the input bytes with no shared state between calls, so callback order and per-callback values are a deterministic function of the input, satisfying the identical_results action. Each rebuilds its own local offset/pathFlags buffers per invocation, so no cross-call contamination is possible. TestTraversalDeterminism drives all three helpers twice and asserts element/key/result equality, passing.
+citations:
+    - parser.go:1700@ArrayEach
+    - parser.go:1910@ObjectEach
+    - parser.go:643@EachKey

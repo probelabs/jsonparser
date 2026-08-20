@@ -606,6 +606,11 @@ func TestTruncatedEscapeSequences(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			defer func() {
+				if rec := recover(); rec != nil {
+					t.Errorf("KI-8 / SYS-REQ-060 reproduced: ParseString(%q) panicked on truncated escape (expected MalformedValueError, not a panic): %v", tc.input, rec)
+				}
+			}()
 			_, err := ParseString([]byte(tc.input))
 			if !errors.Is(err, MalformedValueError) {
 				t.Fatalf("ParseString(%q) error = %v, want %v", tc.input, err, MalformedValueError)
@@ -620,6 +625,11 @@ func TestTruncatedEscapeSequences(t *testing.T) {
 // MalformedValueError). SYS-REQ-061's strict error-return is superseded for
 // the lone-surrogate case by the encoding/json parity fix.
 func TestMissingSurrogateLow(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI-8 / SYS-REQ-061 reproduced: ParseString panicked on lone high surrogate `\\uD800` (expected U+FFFD substitution, not a panic): %v", rec)
+		}
+	}()
 	// \uD800 alone (high surrogate, no low) → U+FFFD substitution, no error.
 	got, err := ParseString([]byte(`\uD800`))
 	if err != nil {
@@ -657,6 +667,11 @@ func TestInvalidSurrogateLow(t *testing.T) {
 // Verifies: SYS-REQ-063 [malformed]
 // Backslash at end of string shall return MalformedValueError.
 func TestBackslashAtEnd(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-063 reproduced: ParseString panicked on lone trailing backslash `\\` (expected MalformedValueError, not a panic): %v", rec)
+		}
+	}()
 	_, err := ParseString([]byte(`\`))
 	if !errors.Is(err, MalformedValueError) {
 		t.Fatalf("ParseString(lone backslash) error = %v, want %v", err, MalformedValueError)

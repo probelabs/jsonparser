@@ -1,0 +1,12 @@
+id: REVIEW-9
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-003
+decision: approved
+comment: 'GetInt satisfies !addressed_value_is_number | !raw_number_token_is_integer_parseable | returns_getint_value: it rejects non-Number types with an error (no value) and otherwise returns ParseInt(v), which yields OverflowIntegerError/MalformedValueError on non-parseable tokens (the !integer_parseable disjunct) and the int64 on success. The GetUint64 variant described in the requirement correctly maps non-negative in-range values, returns MalformedValueError for negatives (n<0) and non-integers, and OverflowIntegerError when strconv.ParseUint reports ErrRange. TestGetUint64 exercises zero, max uint64, max-uint64+1 (overflow), and negative (malformed) boundaries.'
+citations:
+    - parser.go:2092@GetInt
+    - parser.go:2207@GetUint64
+    - parser.go:2169@ParseInt
+    - len_uint_test.go:165@TestGetUint64

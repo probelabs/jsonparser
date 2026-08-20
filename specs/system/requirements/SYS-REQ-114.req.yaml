@@ -77,3 +77,13 @@ lifecycle:
           to: approved
           reason: 're-approve (prior: role="lead_engineer" reviewer="human:buger" at=2026-07-28T08:49:36Z comment="v1.4.0 added in CHG-260728-RKTS: container length accessors, wildcard path support, JSONPath compiled paths. Traced via source-native // SYS-REQ-xxx annotations; obligation hazards graded; witnesses in len_uint_test.go, wildcard_test.go, path_compiler_test.go.")'
           changed_by: human:buger
+        - date: "2026-08-20T13:16:18Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=0
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:13Z"
+          from: verification=not_started
+          to: verification=passing
+          reason: auto-derived [not_started→passing] signals=1; tests_pass:test_status=passing
+          changed_by: human:buger

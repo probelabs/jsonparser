@@ -1,0 +1,12 @@
+id: REVIEW-45
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-065
+decision: approved
+comment: The requirement is that ParseFloat on an empty slice returns MalformedValueError. ParseFloat (parser.go:2159) calls parseFloat(&b) and maps any error to MalformedValueError; parseFloat delegates directly to strconv.ParseFloat(string(*b), 64) (bytes_safe.go:17 and bytes_unsafe.go:27 for both build tags), and strconv.ParseFloat returns a non-nil `invalid syntax` error on the empty string. Thus an empty input propagates an error up to MalformedValueError as required. TestParseFloatEmpty and TestMCDC_SYS_REQ_065_Row2/Row3 confirm the empty-input path returns MalformedValueError. No known issue is attached to this requirement.
+citations:
+    - parser.go:2159@ParseFloat
+    - bytes_unsafe.go:27@parseFloat
+    - bytes_safe.go:17@parseFloat
+    - deep_spec_test.go:559@TestParseFloatEmpty

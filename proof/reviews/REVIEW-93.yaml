@@ -1,0 +1,11 @@
+id: REVIEW-93
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:56Z"
+subject: SYS-REQ-038
+decision: approved
+comment: 'The invariant `raw_string_literal_is_well_formed | returns_parsestring_error` requires ParseString to return MalformedValueError on a malformed encoded literal, and the wrapper at parser.go:2147 does exactly that whenever Unescape reports an error. But the Unescape internals carry two intentional out-of-bounds defects on malformed input: decodeSingleUnicodeEscape guards `if len(in) < 4` instead of 6 (escape.go:88) so a truncated `\u00` indexes in[4]/in[5] and panics (KI-5), and unescapeToUTF8Config guards `if len(in) < 1` instead of 2 (escape.go:194) so a lone trailing backslash reads in[1] and panics (KI-6). For those malformed literals the code panics rather than returning the documented error, violating the invariant; both are tracked, open, high-severity KIs, so the requirement is sound-but-honestly-failing and approvable. (KI-14, dropping `/` from the escape switch at escape.go:203, is a false-reject of valid input and does not affect this malformed->error direction.)'
+citations:
+    - parser.go:2147@ParseString
+    - escape.go:88@decodeSingleUnicodeEscape
+    - escape.go:194@unescapeToUTF8Config

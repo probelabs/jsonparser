@@ -1,0 +1,12 @@
+id: REVIEW-63
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-083
+decision: approved
+comment: 'ArrayEach (parser.go:1698) delegates to arrayEachConfig, whose main loop returns an error and never indexes past the slice on value-boundary truncation: after consuming an element it calls nextTokenConfig, and a -1 there returns MalformedArrayError (parser.go:1748), while a trailing comma leads to Get on the empty tail returning o==0 with its error (parser.go:1770-1772). Tracing `[1,` yields Get on `` -> error; `[1,2` and `[1` both hit nextTokenConfig==-1 -> MalformedArrayError with no OOB read. TestArrayEachTruncatedAtValueBoundary (recover-guarded) and MCDC rows 2/3 confirm error/no-panic; the KI-10/KI-12 defects in this function target empty-`[]`/empty-input (SYS-REQ-028/029), not these truncation partitions.'
+citations:
+    - parser.go:1698@ArrayEach
+    - parser.go:1748@arrayEachConfig
+    - parser.go:1770@arrayEachConfig
+    - deep_spec_test.go:840@TestArrayEachTruncatedAtValueBoundary

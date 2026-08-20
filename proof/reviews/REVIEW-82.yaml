@@ -1,0 +1,12 @@
+id: REVIEW-82
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-102
+decision: approved
+comment: The formula requires Unicode key paths to either resolve and mutate correctly or fail cleanly without panicking. Set (parser.go:1397) and Delete (parser.go:1238) delegate to setConfig/deleteFoundConfig, which match keys byte-wise through internalGet with no decode step that could panic on multi-byte input. TestMutationUnicodeKeys (obligation_property_test.go:758) exercises Set/Delete on a document carrying a raw UTF-8 key and confirms the mutation applies and the document stays parseable, and the MCDC Row2 witness confirms a non-nil result for a Unicode-key Set. The Set/Delete demo defects KI-3/KI-4/KI-16 are confined to array-index and root-delete paths, none of which this requirement's Unicode-string-key cases touch; all witness tests pass.
+citations:
+    - parser.go:1397@Set
+    - parser.go:1238@Delete
+    - parser.go:1249@deleteFoundConfig
+    - obligation_property_test.go:758@TestMutationUnicodeKeys

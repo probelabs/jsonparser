@@ -1,0 +1,11 @@
+id: REVIEW-75
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-095
+decision: approved
+comment: On a nil input GetInt calls Get -> internalGetConfig (parser.go:1671), where nextTokenConfig on the empty slice returns -1 and the function returns MalformedJsonError before any indexing, so GetInt returns (0, err) with no panic; GetFloat/GetBoolean take the same path returning (0/false, err). No pointer is dereferenced on an empty slice because data[offset:] on nil yields an empty slice, not an out-of-bounds access. TestTypedGetterNilSafety wraps all three in a recover() guard and passes, confirming the zero-value-plus-error contract of the action clause.
+citations:
+    - parser.go:2093@GetInt
+    - parser.go:1671@internalGetConfig
+    - parser.go:1660@Get

@@ -38,6 +38,11 @@ func TestInternalSearchHelperEdges(t *testing.T) {
 
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
+				defer func() {
+					if rec := recover(); rec != nil {
+						t.Errorf("KI-8 reproduced: findKeyStart(%q, %q) panicked on a malformed unicode escape (expected KeyPathNotFoundError, not a panic): %v", tc.data, tc.key, rec)
+					}
+				}()
 				offset, err := findKeyStart([]byte(tc.data), tc.key)
 				if tc.wantErr != nil {
 					if !errors.Is(err, tc.wantErr) {
@@ -77,6 +82,11 @@ func TestInternalSearchHelperEdges(t *testing.T) {
 
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
+				defer func() {
+					if rec := recover(); rec != nil {
+						t.Errorf("KI-8 reproduced: searchKeys(%q, %v) panicked on a malformed unicode escape (expected a clean -1, not a panic): %v", tc.data, tc.keys, rec)
+					}
+				}()
 				got := searchKeys([]byte(tc.data), tc.keys...)
 				if tc.want && got < 0 {
 					t.Fatalf("searchKeys(%q, %v) = %d, want found offset", tc.data, tc.keys, got)
@@ -202,6 +212,11 @@ func TestEachKeySupplementalCoverage(t *testing.T) {
 	})
 
 	t.Run("reports malformed escaped key", func(t *testing.T) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				t.Errorf("KI-8 reproduced: EachKey(`{\"\\uD800\":1}`) panicked on a malformed escaped key (expected a clean -1, not a panic): %v", rec)
+			}
+		}()
 		if got := EachKey([]byte(`{"\uD800":1}`), func(int, []byte, ValueType, error) {}, []string{"x"}); got != -1 {
 			t.Fatalf("EachKey malformed escaped key = %d, want -1", got)
 		}

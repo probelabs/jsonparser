@@ -1,0 +1,12 @@
+id: REVIEW-87
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-107
+decision: approved
+comment: 'On nil input each helper returns a zero value plus error without panicking: ParseInt(nil) reaches parseInt where len==0 returns (0,false,false), yielding MalformedValueError (bytes.go:10-12; parser.go:2169); ParseBoolean(nil) falls through both HasPrefix cases to the default MalformedValueError (parser.go:2133-2145); ParseFloat(nil) routes through parseFloat on empty input; and ParseString(nil) hits Unescape''s len<1 guard (escape.go:194). TestParseHelperNilSafety (obligation_property_test.go:439) and the ParseInt MCDC Row2 witness confirm zero-value-plus-error with a recover-guarded no-panic assertion. All witness tests pass.'
+citations:
+    - bytes.go:10@parseInt
+    - parser.go:2169@ParseInt
+    - parser.go:2133@ParseBoolean
+    - obligation_property_test.go:439@TestParseHelperNilSafety

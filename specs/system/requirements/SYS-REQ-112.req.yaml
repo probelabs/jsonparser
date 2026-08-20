@@ -69,3 +69,15 @@ obligation_hazards:
       worst_case: A non-container addressed value (scalar, mismatched bracket) or a missing path returns a silent zero count or a wrong error type (e.g. nil instead of MalformedArrayError / KeyPathNotFoundError), hiding the lookup failure from the caller.
       severity: high
 verification_state: passing
+lifecycle:
+    change_history:
+        - date: "2026-08-20T13:16:17Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=1; known_issue:KI-3=none
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:13Z"
+          from: verification=not_started
+          to: verification=passing
+          reason: auto-derived [not_started→passing] signals=2; known_issue:KI-3=none | tests_pass:test_status=passing
+          changed_by: human:buger

@@ -1,0 +1,12 @@
+id: REVIEW-3
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-003
+decision: approved
+comment: 'The typed scalar helpers exist and are wired correctly: GetInt/GetFloat/GetBoolean each call Get, enforce the expected ValueType (returning NullValueError for null and a descriptive type error otherwise), then delegate to ParseInt/ParseFloat/ParseBoolean, giving callers a typed value or an explicit error as AC-1..AC-3 require. Two tracked defects sit in the delegated conversions: parseInt''s fast-path threshold is widened to l-i < 20 so a 19-digit literal exceeding int64 skips the overflow-checked slow path and wraps silently instead of returning OverflowIntegerError (KI-7, reached through GetInt/SYS-REQ-076), and ParseBoolean uses bytes.HasPrefix rather than bytes.Equal so GetBoolean on a token like ''trueish'' returns (true,nil) instead of a malformed error (KI-11). GetFloat''s ParseFloat path is sound. The requirement is sound and implemented; the integer-overflow and boolean-exactness bugs are tracked.'
+citations:
+    - parser.go:2093@GetInt
+    - parser.go:2114@GetBoolean
+    - bytes.go:27
+    - parser.go:2137

@@ -1,0 +1,12 @@
+id: REVIEW-10
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-004
+decision: approved
+comment: 'GetFloat meets !addressed_value_is_number | !raw_number_token_is_float_parseable | returns_getfloat_value: non-Number types error out with no value, and a Number token is returned via ParseFloat(v), which returns MalformedValueError when parseFloat fails (the !float_parseable disjunct). The ArrayEachErr aspect in the description also holds: arrayEachErr increments count BEFORE invoking the callback, so a callback that stops via io.EOF (graceful, nil error) or any other error returns a count that includes the stopping element — TestArrayEachErr confirms count==2 on EOF-at-2 and count==3 on error-at-3.'
+citations:
+    - parser.go:2072@GetFloat
+    - parser.go:1820@arrayEachErr
+    - parser.go:2159@ParseFloat
+    - array_each_err_test.go:10@TestArrayEachErr

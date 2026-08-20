@@ -1,0 +1,12 @@
+id: REVIEW-19
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-033
+decision: approved
+comment: 'The formula requires that Delete with a provided path whose target exists returns the document with that target removed. Delete (parser.go:1238) calls deleteFoundConfig, which for an existing object key computes keyOffset/endOffset via findKeyStartConfig+internalGetConfig and splices out the element plus its trailing comma (parser.go:1276-1317). Correctness is witnessed strongly: TestMCDC_SYS_REQ_033_Row3 deletes `a` from `{"a":1,"b":2}` and asserts Get(result,"a") is KeyPathNotFoundError, and the reference oracle (reference_oracle_test.go:704 @TestOracleDeleteCorrectness) runs 10000 randomized deletes asserting the removed path is gone and residual JSON stays valid.'
+citations:
+    - parser.go:1238@Delete
+    - parser.go:1251@deleteFoundConfig
+    - mcdc_spec_witnesses_test.go:1180@TestMCDC_SYS_REQ_033_Row3_InvariantViolation
+    - reference_oracle_test.go:704@TestOracleDeleteCorrectness

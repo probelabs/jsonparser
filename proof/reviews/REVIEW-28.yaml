@@ -1,0 +1,13 @@
+id: REVIEW-28
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-046
+decision: approved
+comment: 'blockEnd/blockEndConfig (parser.go:376) return -1 on an unmatched bracket/brace. Callers handle it as malformed-structure: array/object skips in searchKeys return -1 (parser.go:840, parser.go:1071, parser.go:608), the object-brace skip returns -1 (parser.go:552), internalGet raises MalformedArrayError/MalformedObjectError (parser.go:1600, parser.go:1610), and the top-level array append returns MalformedArrayError (parser.go:1466). The two container-skip sites at parser.go:159/164 simply leave the index unadvanced on -1 rather than dereferencing, which is also a safe handling. MCDC Row3 sentinel-handled witness passes.'
+citations:
+    - parser.go:376@blockEnd
+    - parser.go:840@searchKeysConfig
+    - parser.go:1600@internalGetConfig
+    - parser.go:1466
+    - parser.go:552

@@ -1,0 +1,12 @@
+id: REVIEW-24
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-042
+decision: approved
+comment: The invariant `!input_is_truncated_mid_structure | returns_error_for_truncated_mid_structure` requires Get to return a parse error without panic when a structure is opened but never closed. On `{"a":[1,2` or `{"a":"hello`, internalGetConfig resolves the key then calls getType, whose container/string scan reaches end-of-buffer; stringEndConfig returns (-1,...) when no closing quote is found (parser.go:372) and the block/number scanners are all bounded by `len(data)`, so the error propagates and no read goes out of bounds. Get (parser.go:1659) therefore returns a non-nil error rather than panicking. TestTruncatedMidStructure exercises unclosed arrays, objects, strings, and deep nesting with a panic-recover guard, and no KI is attached to this requirement.
+citations:
+    - parser.go:1659@Get
+    - parser.go:1684@internalGetConfig
+    - parser.go:372@stringEndConfig
+    - deep_spec_test.go:44@TestTruncatedMidStructure

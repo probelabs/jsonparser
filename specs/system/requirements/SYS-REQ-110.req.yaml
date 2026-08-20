@@ -97,7 +97,7 @@ obligation_hazards:
     - class: element_type_partition
       worst_case: Set on a beyond-length array index under a nested key whose existing array contains SCALAR first elements (numbers, strings, bools, nulls, nested arrays — anything where the first element byte is not '{') silently replaces the entire array with a single-element [value], destroying all existing data. The append-at-end code path's guard previously required data[subObjOff]=='{' , so only object-first-element arrays took the append branch; scalar arrays fell through to the replace-container branch. Fixed in DEFECT-260727-WWWY; regression test TestSetBeyondLengthScalarArrayPreservesElements_SYS110 locks all scalar element-type partitions.
       severity: high
-verification_state: failing
+verification_state: passing
 lifecycle:
     change_history:
         - date: "2026-07-26T17:20:51Z"
@@ -155,3 +155,8 @@ lifecycle:
           to: verification=failing
           reason: auto-derived [passing→failing] signals=3; known_issue:KI-3=none | known_issue:KI-4=failing | tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:17Z"
+          from: verification=failing
+          to: verification=passing
+          reason: auto-derived [failing→passing] signals=3; known_issue:KI-3=none | known_issue:KI-4=none | tests_pass:test_status=passing
+          changed_by: human:buger

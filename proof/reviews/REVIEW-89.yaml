@@ -1,0 +1,12 @@
+id: REVIEW-89
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-109
+decision: approved
+comment: ParseInt (parser.go:2169) delegates to parseInt, which correctly handles -0, single digits, int64 min/max, and the 100-digit case via its overflow-checked slow path (those subtests pass). But KI-7 widened the fast-path digit threshold to `if l-i < 20` (bytes.go:27), so a 19-digit value above math.MaxInt64 such as 9223372036854775808 takes the unchecked int64 fast path and wraps to -9223372036854775808 with a nil error instead of OverflowIntegerError; I confirmed the 'max+1 overflow' and 'min-1 overflow' subtests of TestParseIntEdgeCaseNumbers fail (obligation_property_test.go:861). The defect is real and tracked by KI-7 so it remains approvable, but KI-7's affected_requirements (SYS-REQ-015/039/059/076) omits SYS-REQ-109.
+citations:
+    - parser.go:2169@ParseInt
+    - bytes.go:27@parseInt
+    - obligation_property_test.go:831@TestParseIntEdgeCaseNumbers
+    - proof/known-issues/KI-7.yaml:1

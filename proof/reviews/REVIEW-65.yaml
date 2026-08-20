@@ -1,0 +1,12 @@
+id: REVIEW-65
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-085
+decision: approved
+comment: 'EachKey (parser.go:642) guards every end-of-input/sentinel condition before using an offset as an index: a truncated key makes stringEnd return -1 -> return -1 (parser.go:674), a missing value token makes nextToken return -1 -> return -1 (parser.go:682), a level<1 underflow calls back with MalformedJsonError and returns -1 (parser.go:709), and an unterminated array makes blockEnd return -1 -> return -1 (parser.go:840). Because the loop is bounded by `for i < ln` and each nextToken/stringEnd result is checked against -1, the tokenEnd/len(data) sentinel is treated as end-of-input rather than an unchecked index. TestEachKeySentinelHandling exercises `{"a`, `{"a:`, `[1,2`, and `{"a":1` under a recover() and observes no panic.'
+citations:
+    - parser.go:642@EachKey
+    - parser.go:674@EachKey
+    - parser.go:709@EachKey
+    - deep_spec_test.go:907@TestEachKeySentinelHandling

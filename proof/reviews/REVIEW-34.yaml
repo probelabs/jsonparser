@@ -1,0 +1,12 @@
+id: REVIEW-34
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-052
+decision: approved
+comment: 'The FRETish clause (!array_callback_returns_error | array_callback_error_is_propagated) is satisfied by arrayEachConfig''s element loop: config.Get returns the element error e (parser.go:1768), the error is passed into the callback via cb(v,t,...,e) (parser.go:1780), and then the loop immediately returns offset,e rather than continuing iteration (parser.go:1782-1784). TestArrayEachErrorPropagation exercises a malformed element and asserts a non-nil error is surfaced. Iteration is never silently continued past an element-level Get error, so propagation is guaranteed.'
+citations:
+    - parser.go:1768@arrayEachConfig
+    - parser.go:1780@arrayEachConfig
+    - parser.go:1782@arrayEachConfig
+    - deep_spec_test.go:389@TestArrayEachErrorPropagation

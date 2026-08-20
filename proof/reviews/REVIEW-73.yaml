@@ -1,0 +1,13 @@
+id: REVIEW-73
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-093
+decision: approved
+comment: 'The requirement demands that Unicode edge cases decode correctly or return a well-defined error WITHOUT panicking. The attached TestGetStringUnicodeEdgeCases passes, but its cases are all well-formed BMP escapes and never exercise truncated or boundary escapes, so it misses two genuine panics: KI-5 weakened decodeSingleUnicodeEscape''s guard to len(in)<4 while reading in[4]/in[5], and KI-8 weakened decodeUnicodeEscape''s lone-high-surrogate guard to len(in)<6 while reading in[6]/in[7]. I ran TestDemoKI5 and TestDemoKI8 and reproduced real index-out-of-range panics on GetString({"k":"\u00"}) and on a value ending in \uD834 — exactly the boundary Unicode edge cases this requirement forbids from panicking. Both are tracked defects, so the property is honestly violated but still approvable as known-issue-linked.'
+citations:
+    - escape.go:88@decodeSingleUnicodeEscape
+    - escape.go:146@decodeUnicodeEscape
+    - obligation_property_test.go:588@TestGetStringUnicodeEdgeCases
+    - proof_demo_reproducers_test.go:25@TestDemoKI5_TruncatedUnicodeEscapeOOB
+    - proof_demo_reproducers_test.go:92@TestDemoKI8_LoneHighSurrogateOOB

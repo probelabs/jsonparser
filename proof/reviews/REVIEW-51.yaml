@@ -1,0 +1,11 @@
+id: REVIEW-51
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-071
+decision: approved
+comment: 'GetString retrieves via Get and, when the underlying Get returns a non-nil error, immediately propagates it: `v, t, _, e := Get(...); if e != nil { return "", e }` (parser.go:2048-2052). This is the whole of the requirement (!getstring_input_is_malformed | returns_getstring_error_for_malformed) — malformed input surfaces as a Get error that is passed through unchanged. TestGetStringMalformedInput (deep_spec_test.go) feeds `{"a"::` and asserts a non-nil error, and the MCDC Row2/Row3 witnesses confirm the trigger-true path returns an error.'
+citations:
+    - parser.go:2047@GetString
+    - parser.go:2050@GetString
+    - mcdc_spec_witnesses_test.go:2367@TestMCDC_SYS_REQ_071_Row2_InvariantViolation

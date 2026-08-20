@@ -1,0 +1,11 @@
+id: REVIEW-54
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-074
+decision: approved
+comment: 'On empty input GetString inherits Get''s behavior because it returns the propagated error from `if e != nil { return "", e }` (parser.go:2050-2051). internalGetConfig gives a deterministic, panic-free error for empty data: with keys, searchKeys returns -1 -> KeyPathNotFoundError (parser.go:1674); with no keys, nextTokenConfig on empty returns -1 -> MalformedJsonError (parser.go:1680-1681). Both are non-nil errors with no out-of-bounds access, satisfying the empty_input/nil_safety obligation that GetString mirror Get on empty input.'
+citations:
+    - parser.go:2048@GetString
+    - parser.go:1674@internalGetConfig
+    - parser.go:1680@internalGetConfig

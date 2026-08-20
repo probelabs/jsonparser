@@ -65,7 +65,7 @@ obligation_hazards:
     - class: determinism
       worst_case: ArrayEach invokes callbacks in non-deterministic encounter order on identical input, breaking caller-side slice-append or sum accumulation invariants.
       severity: medium
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-13T17:14:56Z"
@@ -83,4 +83,9 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=1; tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:16:07Z"
+          from: verification=passing
+          to: verification=failing
+          reason: auto-derived [passing→failing] signals=1; tests_pass:test_status=failing
+          changed_by: human:buger
 obligation_class: nominal

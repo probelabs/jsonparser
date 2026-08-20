@@ -1,0 +1,11 @@
+id: REVIEW-61
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-081
+decision: approved
+comment: 'Empty-input behavior mirrors Get by construction: GetUnsafeString (parser.go:2032) forwards Get''s error unchanged, and Get on `` with a key returns KeyPathNotFoundError from searchKeysConfig''s -1 result (internalGetConfig, parser.go:1672). TestGetUnsafeStringEmptyInput and MCDC rows 2/3 confirm err!=nil on empty input, while row1 shows no error on `{"a":"b"}`. No panic path exists because the empty slice never gets indexed before the searchKeys guard fires.'
+citations:
+    - parser.go:2032@GetUnsafeString
+    - parser.go:1672@internalGetConfig
+    - deep_spec_test.go:812@TestGetUnsafeStringEmptyInput

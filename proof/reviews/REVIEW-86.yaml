@@ -1,0 +1,12 @@
+id: REVIEW-86
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-106
+decision: approved
+comment: ParseBoolean, ParseInt, ParseFloat, and ParseString (parser.go:2133-2178) are all pure functions of their byte input with no shared or persistent state, so identical input yields identical (value,error) pairs on repeated calls. TestParseHelperDeterminism (obligation_property_test.go:195) confirms this across all four helpers, and the ParseInt MCDC Row2 witness confirms two calls agree with nil errors. The KI-11 prefix-match defect in ParseBoolean (parser.go:2137) and the KI-7 overflow-wrap in parseInt are correctness defects that stay fully deterministic, so they do not violate this determinism-only requirement; all witness tests pass.
+citations:
+    - parser.go:2133@ParseBoolean
+    - parser.go:2169@ParseInt
+    - parser.go:2148@ParseString
+    - obligation_property_test.go:195@TestParseHelperDeterminism

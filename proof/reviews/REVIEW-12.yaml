@@ -1,0 +1,12 @@
+id: REVIEW-12
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-007
+decision: approved
+comment: 'ObjectEach delegates to objectEachConfig, which satisfies !addressed_object_is_well_formed | addressed_object_is_empty | object_callback_receives_entries: malformed input returns MalformedObjectError/MalformedJsonError before any callback (the !well_formed disjunct), an empty object ''{}'' returns nil at the post-brace ''}'' check without invoking the callback (addressed_object_is_empty), and for each well-formed non-empty entry it extracts the key (unescaping when needed), skips the colon, resolves the value via config.Get, and invokes callback(key, value, valueType, offset+off). TestObjectEach plus the OOB-truncation boundary tests confirm correct per-entry tuples and no callback on malformed/empty objects.'
+citations:
+    - parser.go:1915@objectEachConfig
+    - parser.go:1908@ObjectEach
+    - parser_test.go:1876@TestObjectEach
+    - dead_code_audit_oob_test.go:10@TestObjectEach_OOB_TruncatedAfterComma

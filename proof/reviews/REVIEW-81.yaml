@@ -1,0 +1,11 @@
+id: REVIEW-81
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-101
+decision: approved
+comment: Set(nil, val, key) enters setConfig, internalGetConfig returns KeyPathNotFoundError, and the endOffset==-1 branch calls nextTokenConfig(nil) which returns <0, so Set returns (nil, KeyPathNotFoundError) at parser.go:1444 without panicking. Delete(nil, key) -> deleteFoundConfig (parser.go:1251) with lk>0 calls findKeyStartConfig on the empty slice, gets KeyPathNotFoundError, and returns the input slice unchanged with found=false. Both match the requirement's nil-safe contract; TestMutationNilSafety recover-guards both and passes.
+citations:
+    - parser.go:1402@setConfig
+    - parser.go:1444@setConfig
+    - parser.go:1251@deleteFoundConfig

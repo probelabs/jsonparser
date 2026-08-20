@@ -1,6 +1,6 @@
 id: SYS-REQ-008
 version: 1
-status: review
+status: approved
 priority: shall
 category: functional
 req_type: guarantee
@@ -37,21 +37,29 @@ verification:
     formalization_status: valid
     review:
         status: approved
-        reviewer: human:leonidbugaev
-        reviewed_at: "2026-04-23T00:00:00Z"
+        reviewer: human:buger
+        role: lead_engineer
+        roles:
+            - lead_engineer
+        reviewed_at: "2026-08-20T13:11:13Z"
+        comment: Spec-conformance reviewed (agent:claude:spec-conformance); approved on owner authorization.
+        fingerprint: sha256:366691730e40dd774146745eb43265009bd93814033fa80e4d6e6d7babbdc2ea
         ai_generated: false
+        motivation:
+            kind: unchanged
+            rationale: Re-approved after a fresh agent:claude:spec-conformance review grounding each formula clause in the cited implementation; the requirement, formula and obligations are unchanged (conformance re-verification only). Where a tracked code defect exists it remains an open KI and keeps the requirement honestly failing at verification.
 history:
     created_by: human:cli
     created_at: "2026-04-13T17:10:56Z"
-    last_modified_by: human:cli
-    last_modified_at: "2026-07-26T14:54:13Z"
+    last_modified_by: human:buger
+    last_modified_at: "2026-08-20T13:11:14Z"
 obligation_checklist:
     - edge_case
 obligation_hazards:
     - class: edge_case
       worst_case: EachKeys with one requested path plus one malformed sibling emits a found-callback for the good path but loses or mis-routes the malformed-input error, leaving the caller with an incomplete scan and no error surfaced.
       severity: low
-verification_state: passing
+verification_state: failing
 lifecycle:
     change_history:
         - date: "2026-04-13T17:14:56Z"
@@ -64,4 +72,9 @@ lifecycle:
           to: verification=passing
           reason: auto-derived [not_started→passing] signals=2; known_issue:KI-1=none | tests_pass:test_status=passing
           changed_by: agent:auto-derive
+        - date: "2026-08-20T13:40:00Z"
+          from: verification=passing
+          to: verification=failing
+          reason: auto-derived [passing→failing] signals=3; review_record:REVIEW-13=present | known_issue:KI-1=none | tests_pass:test_status=failing
+          changed_by: human:buger
 obligation_class: nominal

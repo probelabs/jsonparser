@@ -1,0 +1,10 @@
+id: REVIEW-94
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:56Z"
+subject: SYS-REQ-039
+decision: approved
+comment: 'The invariant `!raw_int_token_overflows_int64 | returns_parseint_overflow_error` requires an int64-overflowing token to yield OverflowIntegerError, and ParseInt (parser.go:2168) correctly surfaces OverflowIntegerError when parseInt reports overflow. The defect is in parseInt: its fast-path digit-count gate is `if l-i < 20` instead of `< 19` (bytes.go:27), so a 19-digit value takes the unchecked int64 accumulation loop that wraps silently and returns (wrapped, true, false) with no overflow signal, so ParseInt returns a wrong value and nil error for e.g. 9999999999999999999. This is the intentional overflow defect tracked by KI-7 (CWE-190), witnessed by TestDemoKI7 and the MCDC Row2 invariant-violation test. Wrapper is correct; tracked overflow-check defect makes verification honestly fail — approvable.'
+citations:
+    - parser.go:2168@ParseInt
+    - bytes.go:27@parseInt

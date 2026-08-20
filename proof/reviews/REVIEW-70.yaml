@@ -1,0 +1,12 @@
+id: REVIEW-70
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-090
+decision: approved
+comment: GetString called twice on identical input/path must return identical decoded strings and error values. GetString delegates to the deterministic Get and, only when a backslash is present, to ParseString (Unescape into a fresh stack buffer) — both are pure functions of their input with no shared mutable state, so results are stable across calls. TestGetStringDeterminism exercises simple, escaped, unicode, and missing-key cases twice and compares; MCDC Row2 confirms identical results for a plain string. Sound.
+citations:
+    - parser.go:2047@GetString
+    - parser.go:2066
+    - parser.go:2148@ParseString
+    - obligation_property_test.go:56@TestGetStringDeterminism

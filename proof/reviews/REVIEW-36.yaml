@@ -1,0 +1,12 @@
+id: REVIEW-36
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:24Z"
+subject: SYS-REQ-054
+decision: approved
+comment: 'objectEachConfig fails loud on a truncated entry: after skipping the colon, config.Get on the incomplete value (e.g. ''{"a":1,"b":'') returns a parse error that is returned directly at parser.go:1998-1999, and truncation before the colon/next-token makes nextTokenConfig return -1 -> MalformedJsonError (parser.go:1937/1989). Every data[offset] index is guarded by a preceding nextTokenConfig/-1 check, so a truncated nested object like ''{"a":{"b":1'' returns an error without panicking. TestObjectEachTruncatedMidEntry confirms no panic across the truncated-value cases.'
+citations:
+    - parser.go:1998@objectEachConfig
+    - parser.go:1937@objectEachConfig
+    - parser.go:1989@objectEachConfig
+    - deep_spec_test.go:452@TestObjectEachTruncatedMidEntry

@@ -1,0 +1,12 @@
+id: REVIEW-22
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-037
+decision: approved
+comment: 'The invariant `raw_float_token_is_well_formed | returns_parsefloat_error` is met: ParseFloat (parser.go:2158) delegates to the internal parseFloat, which is `strconv.ParseFloat(string(*b), 64)` in both build variants (bytes_unsafe.go:26 and bytes_safe.go:16), and strconv returns a non-nil error for any malformed numeric token. On that error path ParseFloat maps it to the documented MalformedValueError and returns 0, so a malformed token like `notafloat` always yields an error while `3.14` parses cleanly. The MCDC witness rows and TestParseFloat (parser_test.go:2235) confirm both partitions, and no KI is attached to this requirement.'
+citations:
+    - parser.go:2158@ParseFloat
+    - bytes_unsafe.go:26@parseFloat
+    - bytes_safe.go:16@parseFloat
+    - parser_test.go:2235@TestParseFloat

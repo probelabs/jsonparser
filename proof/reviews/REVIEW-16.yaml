@@ -1,0 +1,12 @@
+id: REVIEW-16
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-030
+decision: approved
+comment: The formula requires a well-formed empty object to emit no entry callbacks. In objectEachConfig, after skipping the opening brace, the first-token check at parser.go:1939 correctly compares against '}' and returns nil before entering the entry loop, so `{}` produces zero callbacks. Note this object sentinel is genuinely correct '}' (unlike the mutated array sentinel at 1763 in SYS-REQ-028). TestObjectEach and the MC/DC witnesses (mcdc_spec_witnesses_test.go:1064 @Row3) assert zero callbacks on `{}`, and Row1 confirms a non-empty object still fires per-entry.
+citations:
+    - parser.go:1939
+    - parser.go:1908@ObjectEach
+    - mcdc_spec_witnesses_test.go:1064@TestMCDC_SYS_REQ_030_Row3_InvariantViolation
+    - parser_test.go:1870@TestObjectEach

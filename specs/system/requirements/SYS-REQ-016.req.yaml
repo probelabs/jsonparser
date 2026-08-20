@@ -114,4 +114,14 @@ lifecycle:
           to: approved
           reason: 're-approve (prior: role="lead_engineer" reviewer="human:buger" at=2026-07-26T15:21:06Z comment="Final re-approval after L3 strict posture sweep (hazard+obligation+coverage work)")'
           changed_by: human:buger
+        - date: "2026-08-20T13:16:07Z"
+          from: verification=passing
+          to: verification=not_started
+          reason: auto-derived [passing→not_started] signals=1; known_issue:KI-1=none
+          changed_by: human:buger
+        - date: "2026-08-20T13:40:01Z"
+          from: verification=not_started
+          to: verification=passing
+          reason: auto-derived [not_started→passing] signals=2; known_issue:KI-1=none | tests_pass:test_status=passing
+          changed_by: human:buger
 obligation_class: missing_path

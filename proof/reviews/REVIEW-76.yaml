@@ -1,0 +1,12 @@
+id: REVIEW-76
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-096
+decision: approved
+comment: 'GetInt routes through ParseInt -> parseInt (bytes.go:9), whose fast path is gated on `l-i < 20` (bytes.go:27) — the KI-7 intentional defect that widens the threshold so any 19-digit integer skips the overflow-checked slow path. I ran TestGetIntLargeNumberEdgeCases: max/min int64 pass, but `{"n":9223372036854775808}` (MaxInt64+1) wraps silently to -9223372036854775808 with a nil error instead of the required well-defined error, so the subtest FAILS. This directly contradicts the requirement''s ''correct int64 result or well-defined error'' clause; verification is honestly failing on a defect tracked by KI-7.'
+citations:
+    - parser.go:2093@GetInt
+    - parser.go:2169@ParseInt
+    - bytes.go:27
+    - obligation_property_test.go:648@TestGetIntLargeNumberEdgeCases

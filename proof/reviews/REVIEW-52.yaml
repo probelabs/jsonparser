@@ -1,0 +1,11 @@
+id: REVIEW-52
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-072
+decision: approved
+comment: For a string value containing a backslash, GetString routes to ParseString(v) (parser.go:2066), which calls Unescape; when an escape is truncated, unescapeToUTF8Config returns inLen == -1 and Unescape returns MalformedStringEscapeError (escape.go:324-325), which ParseString converts to MalformedValueError (parser.go:2150-2151). Thus a truncated escape yields a non-nil error rather than corrupted output, satisfying !getstring_value_has_truncated_escape | returns_getstring_error_for_truncated_escape. The `\\`-presence guard (parser.go:2062) ensures only escape-bearing values reach ParseString, so the unescape error path is the sole outcome for the addressed case.
+citations:
+    - parser.go:2066@GetString
+    - parser.go:2150@ParseString
+    - escape.go:324@unescapeConfig

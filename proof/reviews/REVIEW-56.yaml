@@ -1,0 +1,12 @@
+id: REVIEW-56
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-076
+decision: approved
+comment: GetInt delegates magnitude checking to ParseInt, which is supposed to return OverflowIntegerError when parseInt reports overflow (parser.go:2170-2172). The overflow-checked slow path in parseInt is correct, but the fast-path gate was widened from `l-i < 19` to `l-i < 20` (bytes.go:27), so a 19-digit literal above math.MaxInt64 (e.g. 9999999999999999999) takes the unchecked int64 fast path and wraps silently to a wrong value with a nil error instead of OverflowIntegerError. That is a genuine, reproducer-grade violation of !getint_value_overflows_int64 | returns_getint_overflow_error, but it is honestly tracked as KI-7 (high, CWE-190) whose affected_requirements includes SYS-REQ-076, so it is approvable as a tracked defect rather than an untracked failure.
+citations:
+    - parser.go:2094@GetInt
+    - parser.go:2170@ParseInt
+    - bytes.go:27@parseInt
+    - proof/known-issues/KI-7.yaml:5

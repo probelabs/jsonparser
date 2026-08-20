@@ -1,0 +1,12 @@
+id: REVIEW-48
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:25Z"
+subject: SYS-REQ-068
+decision: approved
+comment: 'The requirement is that Set with a path resolving beyond available/truncated data returns an error rather than panicking or corrupting output. setConfig (parser.go:1402) first calls internalGetConfig; a genuine parse error other than KeyPathNotFoundError is returned directly, and the endOffset==-1 branch guards a non-container/scalar root by checking nextTokenConfig and the first token before indexing, returning KeyPathNotFoundError/MalformedArrayError instead of reading out of bounds. I ran the boundary tests (TestSetPathBeyondEOF, TestSetTruncatedInput, TestMCDC_SYS_REQ_068_Row2/Row3) and they pass: `Set([]byte("{\"a\":1"), ...)` and `Set([]byte("42"), []byte("1"), "a")` return an error with no panic. No known issue is attached to this requirement.'
+citations:
+    - parser.go:1402@setConfig
+    - parser.go:1407@setConfig
+    - parser.go:1436@setConfig
+    - deep_spec_test.go:346@TestSetPathBeyondEOF

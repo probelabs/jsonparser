@@ -2133,6 +2133,11 @@ func TestMCDC_SYS_REQ_060_Row1_TriggerFalse(t *testing.T) {
 // Verifies: SYS-REQ-060
 // MCDC SYS-REQ-060: raw_string_has_truncated_escape_sequence=T, returns_error_for_truncated_escape_sequence=F => FALSE
 func TestMCDC_SYS_REQ_060_Row2_InvariantViolation(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-060 reproduced: ParseString(`abc\\`) panicked on trailing backslash (expected MalformedValueError, not a panic): %v", rec)
+		}
+	}()
 	if _, err := ParseString([]byte(`abc\`)); err == nil {
 		t.Fatal("expected error on truncated escape sequence, got nil")
 	}
@@ -2141,6 +2146,11 @@ func TestMCDC_SYS_REQ_060_Row2_InvariantViolation(t *testing.T) {
 // Verifies: SYS-REQ-060
 // MCDC SYS-REQ-060: raw_string_has_truncated_escape_sequence=T, returns_error_for_truncated_escape_sequence=T => TRUE
 func TestMCDC_SYS_REQ_060_Row3_TruncatedEscapeError(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-060 reproduced: ParseString(`abc\\`) panicked on trailing backslash (expected MalformedValueError, not a panic): %v", rec)
+		}
+	}()
 	if _, err := ParseString([]byte(`abc\`)); err == nil {
 		t.Fatal("expected error on truncated escape sequence, got nil")
 	}
@@ -2395,6 +2405,11 @@ func TestMCDC_SYS_REQ_072_Row1_TriggerFalse(t *testing.T) {
 // Verifies: SYS-REQ-072
 // MCDC SYS-REQ-072: getstring_value_has_truncated_escape=T, returns_getstring_error_for_truncated_escape=F => FALSE
 func TestMCDC_SYS_REQ_072_Row2_InvariantViolation(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-072 reproduced: GetString(`{\"a\":\"b\\`) panicked on truncated trailing backslash (expected an error, not a panic): %v", rec)
+		}
+	}()
 	if _, err := GetString([]byte(`{"a":"b\`), "a"); err == nil {
 		t.Fatal("expected error on truncated escape in GetString, got nil")
 	}
@@ -2403,6 +2418,11 @@ func TestMCDC_SYS_REQ_072_Row2_InvariantViolation(t *testing.T) {
 // Verifies: SYS-REQ-072
 // MCDC SYS-REQ-072: getstring_value_has_truncated_escape=T, returns_getstring_error_for_truncated_escape=T => TRUE
 func TestMCDC_SYS_REQ_072_Row3_TruncatedEscapeError(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-072 reproduced: GetString(`{\"a\":\"b\\`) panicked on truncated trailing backslash (expected an error, not a panic): %v", rec)
+		}
+	}()
 	if _, err := GetString([]byte(`{"a":"b\`), "a"); err == nil {
 		t.Fatal("expected error on truncated escape in GetString, got nil")
 	}
@@ -2849,6 +2869,11 @@ func TestMCDC_SYS_REQ_062_Row1_TriggerFalse(t *testing.T) {
 // Lone high surrogate → U+FFFD substitution (DEFECT-260727-SNGT supersedes the
 // error-return obligation).
 func TestMCDC_SYS_REQ_062_Row3_InvalidLowSurrogateError(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI-8 / SYS-REQ-062 reproduced: ParseString(`\\uD800\\uD800`) panicked reprocessing the trailing lone high surrogate (expected U+FFFD+U+FFFD, not a panic): %v", rec)
+		}
+	}()
 	got, err := ParseString([]byte(`\uD800\uD800`))
 	if err != nil {
 		t.Fatalf("expected no error on high+high surrogates (U+FFFD substitution), got %v", err)
@@ -2873,6 +2898,11 @@ func TestMCDC_SYS_REQ_063_Row1_TriggerFalse(t *testing.T) {
 // Verifies: SYS-REQ-063
 // MCDC SYS-REQ-063: raw_string_has_backslash_at_end=T, returns_error_for_backslash_at_end=F => FALSE
 func TestMCDC_SYS_REQ_063_Row2_InvariantViolation(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-063 reproduced: ParseString(`abc\\`) panicked on trailing backslash (expected MalformedValueError, not a panic): %v", rec)
+		}
+	}()
 	if _, err := ParseString([]byte(`abc\`)); err == nil {
 		t.Fatal("expected error on trailing backslash, got nil")
 	}
@@ -2881,6 +2911,11 @@ func TestMCDC_SYS_REQ_063_Row2_InvariantViolation(t *testing.T) {
 // Verifies: SYS-REQ-063
 // MCDC SYS-REQ-063: raw_string_has_backslash_at_end=T, returns_error_for_backslash_at_end=T => TRUE
 func TestMCDC_SYS_REQ_063_Row3_TrailingBackslashError(t *testing.T) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			t.Errorf("KI / SYS-REQ-063 reproduced: ParseString(`abc\\`) panicked on trailing backslash (expected MalformedValueError, not a panic): %v", rec)
+		}
+	}()
 	if _, err := ParseString([]byte(`abc\`)); err == nil {
 		t.Fatal("expected error on trailing backslash, got nil")
 	}

@@ -1,0 +1,13 @@
+id: REVIEW-2
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-002
+decision: approved
+comment: 'GetString implements the decode-escapes-and-Unicode contract by fetching the raw String value via Get, rejecting non-string types (Null -> NullValueError, else a type error), returning the raw bytes when no backslash is present, and otherwise delegating to ParseString -> Unescape for full JSON unescaping. The unescaping pipeline is genuinely present but carries tracked defects in its shared decoder: unescapeToUTF8Config''s escape switch omits ''/'' so the valid JSON escape \/ is rejected as malformed (KI-14), decodeSingleUnicodeEscape''s length guard was weakened to len(in) < 4 so a truncated \u escape reads in[4]/in[5] out of bounds and panics (KI-5), and h2I accepts byte ''G'' as hex 16 so \uGxxx is silently decoded (KI-9); the lone-surrogate guards (KI-6/KI-8) share this path. The requirement and the GetString structure are sound; the escape/Unicode decoding is broken only through these tracked known issues.'
+citations:
+    - parser.go:2047@GetString
+    - parser.go:2148@ParseString
+    - escape.go:203
+    - escape.go:88
+    - escape.go:71

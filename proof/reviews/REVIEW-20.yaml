@@ -1,0 +1,12 @@
+id: REVIEW-20
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:23Z"
+subject: SYS-REQ-034
+decision: approved
+comment: The formula requires that Delete with a provided path, an absent target, and otherwise-usable input returns the original payload unchanged. In deleteFoundConfig the findKeyStartConfig KeyPathNotFoundError branch (parser.go:1277) returns `data, false` — the untouched input slice — so a missing key yields the original bytes. TestMCDC_SYS_REQ_034_Row2/Row3 and TestObligation_SYS_REQ_034 confirm `Delete({"a":1},"missing")` equals the input, TestPropertyDeleteIdempotent proves idempotence, and TestOracleDeleteCorrectness asserts the input is unchanged across 10000 random deletes. KI-1 (empty-key panic) is status:fixed and the len(keys[lk-1])>0 guard at parser.go:1260 plus TestDeleteEmptyKeyPathComponent lock in panic-free degradation.
+citations:
+    - parser.go:1277
+    - parser.go:1260
+    - obligation_evidence_test.go:323@TestObligation_SYS_REQ_034
+    - empty_key_path_test.go:211@TestDeleteEmptyKeyPathComponent

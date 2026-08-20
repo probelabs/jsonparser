@@ -1,0 +1,12 @@
+id: REVIEW-66
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:26Z"
+subject: SYS-REQ-086
+decision: approved
+comment: 'The formula requires two Get calls on identical input/path to return identical value, type, offset, and error presence. Get is a pure iterative read: internalGetConfig resolves the path via searchKeysConfig and returns a capacity-capped sub-slice value[:len(value):len(value)] of the caller''s buffer without any writes or hidden global state, so repeated calls are byte-identical. The determinism gate checkDeterminismGate directly asserts v1==v2, t1==t2, o1==o2 and (e1==nil)==(e2==nil) over fuzz inputs, and runStructureAwareGates drives it broadly. Verification is sound.'
+citations:
+    - parser.go:1660@Get
+    - parser.go:1671@internalGetConfig
+    - parser.go:1695
+    - json_fuzz_test.go:1100@checkDeterminismGate

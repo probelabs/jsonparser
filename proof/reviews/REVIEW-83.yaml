@@ -1,0 +1,12 @@
+id: REVIEW-83
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-103
+decision: approved
+comment: GetUnsafeString (parser.go:2034) is a thin wrapper over Get that returns bytesToString(&v) with no mutable state, caching, or randomness, so two calls on identical input and identical key paths are structurally deterministic. TestGetUnsafeStringDeterminism (obligation_property_test.go:181) confirms v1==v2 and matching error nilness, and the MCDC Row2 witness asserts v1==v2 with both errors nil. Get is a pure read over the input slice, so the returned raw string aliases the same underlying bytes on each call. All witness tests pass and no KI touches this determinism property.
+citations:
+    - parser.go:2034@GetUnsafeString
+    - parser.go:1660@Get
+    - obligation_property_test.go:181@TestGetUnsafeStringDeterminism
+    - mcdc_spec_witnesses_test.go:3380@TestMCDC_SYS_REQ_103_Row2_InvariantViolation

@@ -1,0 +1,11 @@
+id: REVIEW-84
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:27Z"
+subject: SYS-REQ-104
+decision: approved
+comment: GetUnsafeString(nil, ...) flows into Get(nil, ...), whose key search returns KeyPathNotFoundError rather than indexing into the empty slice, so GetUnsafeString returns ("", err) at the early e!=nil branch without panicking (parser.go:2034-2040). The MCDC Row2 witness asserts a non-nil error and empty string on nil input, and TestGetUnsafeStringNilSafety (obligation_property_test.go:424) confirms no panic and no non-empty-without-error result. The empty-string-key panic tracked by KI-1 is not reached here because both witnesses pass a non-empty key ("a"/"key"). All witness tests pass.
+citations:
+    - parser.go:2034@GetUnsafeString
+    - obligation_property_test.go:424@TestGetUnsafeStringNilSafety
+    - mcdc_spec_witnesses_test.go:3402@TestMCDC_SYS_REQ_104_Row2_InvariantViolation

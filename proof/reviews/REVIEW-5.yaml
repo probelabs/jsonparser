@@ -1,0 +1,12 @@
+id: REVIEW-5
+kind: spec_conformance
+reviewer: agent:claude:spec-conformance
+reviewed_at: "2026-08-20T13:09:22Z"
+subject: STK-REQ-005
+decision: approved
+comment: The experimental mutation helpers meet the deterministic edge-case contract. deleteFoundConfig returns a fresh non-aliasing empty slice for a zero-key root delete (AC-2 / KI-16 fixed), returns the original data unchanged with found=false on KeyPathNotFoundError and on any internalGetConfig parse error, and bounds-checks the trailing-comma cleanup (endOffset+tokEnd >= len(data) guard) so malformed/truncated input yields the unchanged payload without panic. setConfig resolves the target via internalGetConfig, errors out on unusable paths, and builds insert scaffolding through createInsertComponent/calcAllocateSpace for supported missing paths. The intentional Set/Delete demo defects (KI-1 empty-key panic, KI-3 array-index-under-object, KI-4 top-level append, KI-16 root delete) are all marked fixed and no INTENTIONAL-DEFECT marker remains anywhere in the mutation path.
+citations:
+    - parser.go:1251@deleteFoundConfig
+    - parser.go:1256
+    - parser.go:1291
+    - parser.go:1402@setConfig
