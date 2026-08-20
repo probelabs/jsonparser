@@ -1,0 +1,70 @@
+checklist: onboard_v1
+updated_at: "2026-08-20T12:17:58Z"
+steps:
+    init:
+        status: not_applicable
+        confirmed_at: "2026-08-20T11:26:39Z"
+        confirmed_by: human:buger
+        note: proof.yaml + .proof project initialized; proof commands operate (status/req/checklist all run). Mature onboarded project.
+        verify_result:
+            exit_code: 0
+            passed: true
+            at: "2026-08-20T11:26:39Z"
+        check_results:
+            - id: validate_passes
+              status: pass
+              at: "2026-08-20T11:26:39Z"
+            - id: role_prompt_hygiene
+              status: pass
+              at: "2026-08-20T11:26:39Z"
+    research:
+        status: not_applicable
+        confirmed_at: "2026-08-20T11:26:46Z"
+        confirmed_by: human:buger
+        note: 'Component structure + stakeholder map exist: 10 components, STK-REQ stakeholder layer populated (spec/stakeholder). Requirements export lists 123 reqs across STK/SYS/SW/INT.'
+    skeleton:
+        status: not_applicable
+        confirmed_at: "2026-08-20T11:26:46Z"
+        confirmed_by: human:buger
+        note: 'Four-layer STK/SYS/SW/INT breadth skeleton present: specs/{stakeholder,system,software,interface} populated (123 requirements across all four layers).'
+        check_results:
+            - id: l0_stakeholder_complete
+              status: pass
+              at: "2026-08-20T11:26:46Z"
+            - id: l1_system_complete
+              status: pass
+              at: "2026-08-20T11:26:46Z"
+            - id: l2_software_complete
+              status: pass
+              at: "2026-08-20T11:26:46Z"
+            - id: levels_connected
+              status: pass
+              at: "2026-08-20T11:26:46Z"
+    traces-light:
+        status: confirmed
+        confirmed_at: "2026-08-20T11:27:16Z"
+        confirmed_by: human:buger
+        note: 'probe: parser'
+        scope_key: parser
+        check_results:
+            - id: annotation_validity
+              status: pass
+              at: "2026-08-20T12:17:58Z"
+            - id: orphan_code_clean
+              status: pass
+              at: "2026-08-20T12:17:58Z"
+    variables:
+        status: confirmed
+        confirmed_at: "2026-08-20T11:27:24Z"
+        confirmed_by: human:buger
+        note: 'Requirement variables are declared and named: variables_declared / variable_orphans_clean pass in the SPEC gate; requirements carry named variables (see req export .variables). Non-bool inputs carry domain models (nonbool_inputs_constrained pass).'
+        check_results:
+            - id: variable_orphans_clean
+              status: pass
+              at: "2026-08-20T12:17:58Z"
+            - id: variables_declared
+              status: pass
+              at: "2026-08-20T12:17:58Z"
+            - id: variable_drift
+              status: pass
+              at: "2026-08-20T12:17:58Z"

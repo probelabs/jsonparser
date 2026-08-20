@@ -32,6 +32,28 @@ reproduction_steps:
 - Observe MalformedArrayError instead of a clean zero-iteration success.
 evidence_manifests:
 - proof/evidence/KI-10-reproducer.yaml
+- proof_demo_reproducers_test.go:TestDemoKI10_EmptyArrayEach
+poc_quality:
+  real_infrastructure: true
+  quantitative_impact: false
+  control_test: true
+  untrusted_attacker: false
+  current_deployment_relevance: true
+  honest_severity: true
+  attacker_profitability: false
+  reproducible: true
+  no_inflation: true
+  operational_path_verified: true
+  reachability_verified: false
+  not_applicable:
+    reachability_verified: "local-behavioral correctness defect in a parsing LIBRARY: there is no ingress access-control or authentication layer for an exploit to traverse, so end-to-end reachability past a guard is definitionally N/A. The triggering input is an ordinary caller-supplied empty array to the public API (ArrayEach), not an exploit crossing a trust boundary."
+  notes: |
+    real_infrastructure/reproducible: executed in-repo reproducer `go test -run TestDemoKI10_EmptyArrayEach -count=1 .` drives the real public API (ArrayEach, which routes through the mutated arrayEachConfig) with no mock/stub; single command, <1s (rules 1 & 8).
+    control_test/operational_path_verified: the reproducer binds a positive CONTROL asserting a NON-empty array `[1,2]` iterates exactly twice with a nil error and does NOT trigger the defect — the safe/intended path stays correct (rules 3 & 10).
+    honest_severity/no_inflation: severity=medium basis=risk (correctness); the PoC name matches the demonstrated impact (CWE-20 improper input validation: the empty-array sentinel compares against '}' instead of ']', so a valid `[]` is wrongly rejected as MalformedArrayError); no external submission, grade not inflated (rules 6 & 9).
+    current_deployment_relevance: KI status=open — the mutated sentinel is present in the current proof-demo tree and reachable through the documented public API (rule 5).
+    quantitative_impact/untrusted_attacker/attacker_profitability: N/A — jsonparser is a parsing library, not a Web3/DeFi or value-custody service; these three rules are Web3-only and auto-skipped on a non-Web3 project (rules 2, 4, 7).
+    reachability_verified: N/A (declared above) — local-behavioral correctness defect, no trust-boundary crossing (rule 11).
 commands:
 - go test ./... -count=1
 reproducer_command: go test -run TestDemoKI10 -count=1 .

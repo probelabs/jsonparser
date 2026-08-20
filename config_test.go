@@ -88,6 +88,7 @@ func TestConfigAllowUnknownEscapes(t *testing.T) {
 
 // Verifies: SYS-REQ-115 (zero-value Config remains strict)
 // SYS-REQ-115:malformed_input:nominal
+// SYS-REQ-115:malformed_input:negative
 // reqproof:proptest:skip targeted witness/regression test; not a property-test subject
 func TestConfigStrictStillWorks(t *testing.T) {
 	if _, _, _, err := DefaultConfig.Get([]byte(`{'value':'data'}`), "value"); err == nil {

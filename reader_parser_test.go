@@ -163,6 +163,7 @@ func TestReaderParserLargeFile(t *testing.T) {
 
 // Verifies: SYS-REQ-116 (malformed and truncated streams)
 // SYS-REQ-116:malformed_input:nominal
+// SYS-REQ-116:malformed_input:negative
 // reqproof:proptest:skip targeted malformed-stream witness
 func TestReaderParserMalformed(t *testing.T) {
 	rp := NewReaderParser(strings.NewReader(`{"message":"unterminated`))

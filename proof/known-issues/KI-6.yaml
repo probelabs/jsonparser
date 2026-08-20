@@ -33,6 +33,28 @@ reproduction_steps:
 - Observe an index-out-of-range panic from unescapeToUTF8Config rather than MalformedStringEscapeError.
 evidence_manifests:
 - proof/evidence/KI-6-reproducer.yaml
+- proof_demo_reproducers_test.go:TestDemoKI6_LoneTrailingBackslash
+poc_quality:
+  real_infrastructure: true
+  quantitative_impact: false
+  control_test: true
+  untrusted_attacker: false
+  current_deployment_relevance: true
+  honest_severity: true
+  attacker_profitability: false
+  reproducible: true
+  no_inflation: true
+  operational_path_verified: true
+  reachability_verified: false
+  not_applicable:
+    reachability_verified: "local-behavioral robustness defect in a parsing LIBRARY: there is no ingress access-control or authentication layer for an exploit to traverse, so end-to-end reachability past a guard is definitionally N/A. The triggering bytes are ordinary caller-supplied input to the public API (Unescape/Get*), not an exploit crossing a trust boundary."
+  notes: |
+    real_infrastructure/reproducible: executed in-repo reproducer `go test -run TestDemoKI6_LoneTrailingBackslash -count=1 .` drives the real public API (Unescape) AND calls the mutated internal symbol unescapeToUTF8Config directly (no mock/stub); single command, <1s (rules 1 & 8).
+    control_test/operational_path_verified: the reproducer binds a positive CONTROL asserting a well-formed 2-byte `\n` escape unescapes cleanly (inLen=2,outLen=1) and does NOT trigger the OOB — the safe/intended path stays clean (rules 3 & 10).
+    honest_severity/no_inflation: severity=high basis=reproducer (availability); the PoC name matches the demonstrated impact (CWE-125 OOB read of in[1] -> index-out-of-range panic -> DoS on a lone trailing backslash); no external submission, grade not inflated (rules 6 & 9).
+    current_deployment_relevance: KI status=open — the weakened `len(in) < 1` guard is present in the current proof-demo tree and reachable through the documented public API (rule 5).
+    quantitative_impact/untrusted_attacker/attacker_profitability: N/A — jsonparser is a parsing library, not a Web3/DeFi or value-custody service; these three rules are Web3-only and auto-skipped on a non-Web3 project (rules 2, 4, 7).
+    reachability_verified: N/A (declared above) — local-behavioral correctness/robustness defect, no trust-boundary crossing (rule 11).
 commands:
 - go test ./... -count=1
 reproducer_command: go test -run TestDemoKI6 -count=1 .

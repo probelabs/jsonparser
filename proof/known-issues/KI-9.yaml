@@ -5,7 +5,7 @@ affected_requirements:
 - SYS-REQ-060
 affected_api: h2I
 severity: medium
-severity_basis: risk
+severity_basis: reproducer
 risk: correctness
 cve_surface: unlikely
 cvss: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N
@@ -33,6 +33,28 @@ reproduction_steps:
 - Observe a decoded (bogus) code point and nil error instead of MalformedStringEscapeError.
 evidence_manifests:
 - proof/evidence/KI-9-reproducer.yaml
+- proof_demo_reproducers_test.go:TestDemoKI9_InvalidHexDigitG
+poc_quality:
+  real_infrastructure: true
+  quantitative_impact: false
+  control_test: true
+  untrusted_attacker: false
+  current_deployment_relevance: true
+  honest_severity: true
+  attacker_profitability: false
+  reproducible: true
+  no_inflation: true
+  operational_path_verified: true
+  reachability_verified: false
+  not_applicable:
+    reachability_verified: "local-behavioral correctness defect in a parsing LIBRARY: there is no ingress access-control or authentication layer for an exploit to traverse, so end-to-end reachability past a guard is definitionally N/A. The triggering bytes are ordinary caller-supplied input to the public API (Unescape/Get*), not an exploit crossing a trust boundary."
+  notes: |
+    real_infrastructure/reproducible: executed in-repo reproducer `go test -run TestDemoKI9_InvalidHexDigitG -count=1 .` drives the real public API (Unescape) AND calls the mutated internal symbol h2I directly (no mock/stub); single command, <1s (rules 1 & 8).
+    control_test/operational_path_verified: the reproducer binds a positive CONTROL asserting genuine hex digits decode (h2I('A')=10, h2I('F')=15) and a clearly out-of-range byte is still rejected (h2I('Z')=badHex) — the safe/intended path stays correct (rules 3 & 10).
+    honest_severity/no_inflation: severity=medium basis=reproducer (correctness); the PoC name matches the demonstrated impact (CWE-20 improper input validation: byte 'G' (71) decodes as hex 16, so a `\uG000` escape is silently accepted instead of rejected); no external submission, grade not inflated (rules 6 & 9).
+    current_deployment_relevance: KI status=open — the widened `c <= 71` upper-hex bound is present in the current proof-demo tree and reachable through the documented public API (rule 5).
+    quantitative_impact/untrusted_attacker/attacker_profitability: N/A — jsonparser is a parsing library, not a Web3/DeFi or value-custody service; these three rules are Web3-only and auto-skipped on a non-Web3 project (rules 2, 4, 7).
+    reachability_verified: N/A (declared above) — local-behavioral correctness defect, no trust-boundary crossing (rule 11).
 commands:
 - go test ./... -count=1
 reproducer_command: go test -run TestDemoKI9 -count=1 .
