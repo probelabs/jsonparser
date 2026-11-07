@@ -1,4 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/buger/jsonparser)](https://goreportcard.com/report/github.com/buger/jsonparser) [![Audit](https://img.shields.io/badge/ReqProof-L3%20Assurance-success)](https://reqproof.com) ![License](https://img.shields.io/dub/l/vibe-d.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/buger/jsonparser)](https://goreportcard.com/report/github.com/buger/jsonparser) [![Audit](https://img.shields.io/badge/ReqProof-L3%20Assurance-success)](https://reqproof.com/?utm_source=github&utm_medium=referral&utm_campaign=jsonparser) ![License](https://img.shields.io/dub/l/vibe-d.svg)
 # The fastests JSON parser for Go
 
 It does not require you to know the structure of the payload (eg. create structs), and allows accessing fields by providing the path to them. It is up to **6.5x faster** than standard `encoding/json` package (depending on payload size and usage), **allocates no memory**. See benchmarks below.
@@ -7,9 +7,9 @@ It does not require you to know the structure of the payload (eg. create structs
 
 ---
 
-## 🔒 Formally Verified — the first Go library proven to L3 assurance by [ReqProof](https://reqproof.com)
+## 🔒 Formally Verified — the first Go library proven to L3 assurance by [ReqProof](https://reqproof.com/?utm_source=github&utm_medium=referral&utm_campaign=jsonparser)
 
-jsonparser is the **reference case study** for [ReqProof](https://reqproof.com) — a git-native requirements-engineering and formal-verification platform. Every public API is traced to a formal requirement, every requirement is tested with **100% Modified Condition/Decision Coverage (MC/DC)**, and the entire parser is fuzzed by a custom **structure-aware JSON fuzzer** ([github.com/probelabs/json-fuzz](https://github.com/probelabs/json-fuzz)) that generates grammar-valid mutations at 250,000 inputs/second.
+jsonparser is the **reference case study** for [ReqProof](https://reqproof.com/?utm_source=github&utm_medium=referral&utm_campaign=jsonparser) — a git-native requirements-engineering and formal-verification platform. Every public API is traced to a formal requirement, every requirement is tested with **100% Modified Condition/Decision Coverage (MC/DC)**, and the entire parser is fuzzed by a custom **structure-aware JSON fuzzer** ([github.com/probelabs/json-fuzz](https://github.com/probelabs/json-fuzz)) that generates grammar-valid mutations at 250,000 inputs/second.
 
 | Metric | Value |
 |---|---|
@@ -483,7 +483,7 @@ https://github.com/buger/jsonparser/blob/master/benchmark/benchmark_large_payloa
 
 <!-- Documents: SYS-REQ-001, SYS-REQ-016, SYS-REQ-017, SYS-REQ-018, SYS-REQ-019, SYS-REQ-020, SYS-REQ-021, SYS-REQ-022, SYS-REQ-023, SYS-REQ-024, SYS-REQ-025, SYS-REQ-026, SYS-REQ-027 -->
 
-This project uses [ReqProof](https://reqproof.com) for formal requirements verification, achieving:
+This project uses [ReqProof](https://reqproof.com/?utm_source=github&utm_medium=referral&utm_campaign=jsonparser) for formal requirements verification, achieving:
 
 - **92 formally specified requirements** covering all public API behavior including edge cases, malformed input, boundary values, and error propagation
 - **100% MC/DC coverage** (Modified Condition/Decision Coverage) — every boolean decision in the code is independently proven exercised
